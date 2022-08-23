@@ -1,0 +1,6 @@
+{
+    "require": {
+        "aws/aws-sdk-php": "^3.234",
+        "yoast/phpunit-polyfills" : "1.0.3"
+    }
+}
