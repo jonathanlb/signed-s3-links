@@ -1,6 +1,6 @@
 <?php
 /**
- * Signed_S3_links install, init, admin
+ * Signed_S3_Links install, init, admin
  *
  * @package    Signed-S3-links
  * @author     Jonathan Bredin <bredin@acm.org>
@@ -13,8 +13,12 @@
  * Signed_S3_Links
  */
 class Signed_S3_Links {
-	/** @var $initialized Flag that the plugin has completed loading. */
-	private static $initialized = false;
+	/**
+	 * Signal loaded.
+	 *
+	 * @var $initialized Flag that the plugin has completed loading.
+	 */
+	public static $initialized = false;
 
 	/**
 	 * Respond to admin_init events.
@@ -28,7 +32,7 @@ class Signed_S3_Links {
 		/**
 		 * Retrieve an option value and populate it to input field.
 		 *
-		 * @param $text_input Text-input attributes.
+		 * @param array $text_input Text-input attributes.
 		 */
 		function text_input_callback( $text_input ) {
 			$option_group = $text_input['option_group'];
@@ -102,6 +106,7 @@ class Signed_S3_Links {
 		);
 
 		$sdk = new Aws\Sdk( $aws_config );
+		return $sdk;
 	}
 
 	/**
@@ -117,14 +122,18 @@ class Signed_S3_Links {
 		add_action( 'admin_init', array( 'Signed_S3_Links', 'admin_init' ) );
 		add_action( 'admin_menu', array( 'Signed_S3_Links', 'admin_menu' ) );
 		add_action( 'wp_enqueue_scripts', array( 'Signed_S3_Links', 'wp_enqueue_scripts' ) );
+
+		add_shortcode( 'ss3_dir', array( 'Signed_S3_Link_Handler', 'list_dir_shortcode' ) );
+		add_shortcode( 'ss3_ref', array( 'Signed_S3_Link_Handler', 'href_shortcode' ) );
 	}
 
 	/**
 	 * Styled after Akismet::log.
 	 *
-	 * @param $debug_msg string or object to print out during debug.
+	 * @param mixed $debug_msg  String or object to print out during debug.
 	 */
 	public static function log( $debug_msg ) {
+		// call during unit-test debug fwrite(STDERR, print_r( $debug_msg, true ) . "\n" ).
 		if ( apply_filters( 'ss3_debug_log', defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG && defined( 'SS3_DEBUG' ) && SS3_DEBUG ) ) {
 			error_log( print_r( compact( 'debug_msg' ), true ) );
 		}
@@ -179,9 +188,9 @@ class Signed_S3_Links {
 	/**
 	 * Provide an S3 client.
 	 */
-	private static function s3() {
+	public static function s3() {
 		$aws_sdk   = self::create_aws_sdk();
-		$s3_client = self::$aws_sdk->createS3();
+		$s3_client = $aws_sdk->createS3();
 		return $s3_client;
 	}
 
