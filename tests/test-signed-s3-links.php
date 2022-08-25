@@ -116,4 +116,15 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 			Signed_S3_Link_Handler::parse_key( $req )
 		);
 	}
+
+	/**
+	 * Ensure we extract the filename from a key.
+	 */
+	public function test_parse_filename_from_key() {
+		$key = 'foo/bar/index.html';
+		$this->assertEquals(
+			'index.html',
+			Signed_S3_Link_Handler::parse_filename_from_key( $key )
+		);
+	}
 }

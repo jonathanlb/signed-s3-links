@@ -46,27 +46,40 @@ class Signed_S3_Link_Handler {
 			$dir = $atts[0];
 			Signed_S3_Links::log( 'list ' . $dir );
 			$bucket  = self::parse_bucket( $dir );
+			$key     = self::parse_key( $dir );
 			$s3      = Signed_S3_Links::s3();
 			$listing = $s3->listObjects(
 				array(
-					'Bucket' => $dir,
-					'Prefix' => '',
+					'Bucket' => $bucket,
+					'Prefix' => $key,
 				)
 			);
+			// TODO: filter by prefix.
 			Signed_S3_Links::log( 'listing ' . $listing );
 
-			if ( $listing['Contents'] ) {
-				$contents = array_filter(
-					$listing['Contents'],
-					fn( $c) => $c['Size'] > 0
-				); // XXX check remaining size.
+			$contents = $listing['Contents'] ? $listing['Contents'] : array();
+			$contents = array_filter(
+				$contents,
+				fn( $c) => $c['Size'] > 0
+			);
 
+			if ( count( $contents ) > 0 ) {
 				$urls = array_map(
-					fn( $e) => self::sign_entry( $s3, $dir, $e['Key'] ),
+					fn( $e ) => array(
+						'name' => self::parse_filename_from_key( $e['Key'] ),
+						'url'  => self::sign_entry( $s3, $dir, $e['Key'] ),
+					),
 					$contents
 				);
 
-				return implode( ',', $urls ); // TODO FORMAT
+				$result = '<ul>';
+				foreach ( $urls as $e ) {
+					// TODO title better than link
+					$result .= '<li><a href="' . $e['url'] . '">' . $e['name'] . '</a>';
+				}
+
+				$result .= '</ul>';
+				return $result;
 			} else {
 				return 'no listing';
 			}
@@ -98,14 +111,37 @@ class Signed_S3_Link_Handler {
 	 */
 	public static function parse_filename( $request ) {
 		$m = array();
-		preg_match( '/^(s3:\/\/)?.*\/([^\/]*)$/', $request, $m );
-		if ( count( $m ) != 3 ) {
-			return '';
+		if ( str_starts_with( $request, 's://' ) ) {
+			  preg_match( '/^s3:\/\/.*\/([^\/]*)$/', $request, $m );
+			if ( count( $m ) != 2 ) {
+				return '';
+			} else {
+				return $m[1];
+			}
 		} else {
-			return $m[2];
+			preg_match( '/\/([^\/]*)$/', $request, $m );
+			if ( count( $m ) != 2 ) {
+				return '';
+			} else {
+				return $m[1];
+			}
 		}
 	}
 
+	/**
+	 * Extract the filename from an S3 key.
+	 *
+	 * @param string $key S3 object key.
+	 */
+	public static function parse_filename_from_key( $key ) {
+		$m = array();
+		preg_match( '/([^\/]*)$/', $key, $m );
+		if ( count( $m ) != 2 ) {
+			return '';
+		} else {
+			return $m[1];
+		}
+	}
 
 	/**
 	 * Extract the key from an href or directory listing request.
