@@ -54,6 +54,18 @@ class Signed_S3_Links {
 			'ss3_settings'
 		);
 		add_settings_field(
+			'aws_credentials_profile',
+			__( 'Credentials Profile' ),
+			'text_input_callback',
+			'ss3_settings',
+			'aws_settings_section',
+			array(
+				'label_for'    => 'aws_credentials_profile',
+				'option_group' => 'ss3_settings',
+				'option_id'    => 'aws_credentials_profile',
+			)
+		);
+		add_settings_field(
 			'aws_region',
 			__( 'Region' ),
 			'text_input_callback',
@@ -101,6 +113,7 @@ class Signed_S3_Links {
 	private static function create_aws_sdk() {
 		$options    = get_option( 'ss3_settings' );
 		$aws_config = array(
+			'profile' => $options['aws_credentials_profile'],
 			'region'  => $options['aws_region'],
 			'version' => $options['aws_version'],
 		);
@@ -147,6 +160,9 @@ class Signed_S3_Links {
 
 		// Write default settings.
 		$options = get_option( 'ss3_settings' );
+		if ( ! isset( $options['aws_credentials_profile'] ) ) {
+			$options['aws_credentials_profile'] = 'default';
+		}
 		if ( ! isset( $options['aws_region'] ) ) {
 			$options['aws_region'] = 'us-east-2';
 		}

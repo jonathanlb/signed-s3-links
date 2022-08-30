@@ -37,6 +37,7 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		$this->assertEquals( true, Signed_S3_Links::$initialized );
 		$this->assertEquals( 'latest', $options['aws_version'] );
 		$this->assertEquals( 'us-east-2', $options['aws_region'] );
+		$this->assertEquals( 'default', $options['aws_credentials_profile'] );
 	}
 
 	/**
