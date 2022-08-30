@@ -1,14 +1,19 @@
 # signed-s3-links
-The signed-s3-links WordPress plugin allows post authors to publish signed links to otherwise inaccessible S3 content.
+The signed-s3-links (SS3L) WordPress plugin allows post authors to publish signed links to otherwise inaccessible S3 content.
 
 ## Installation
 
+- SS3L is targeted for PHP 7.4.30 and WordPress 6.0.
 - [Install AWS PHP SDK.](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html)
-- Set up credentials....
+- [Check your AWS credentials.](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)  SS3L will use the server-local credentials to authenticate with S3 services. 
 
 ## Usage
 
 ### Settings
+
+In your WordPress installation under the plugin settings, go to the 
+signed-s3-links settings and make sure your region and credentials profile
+matches what you expect.
 
 ### Displaying a link
 
@@ -33,7 +38,8 @@ which will render an HTML list of signed links titled by the corresponding objec
 
 ## Testing
 
-Running `phpunit` in the top-level directory....
+- Set up unit tests with `./bin/install-wp-tests.sh wordpress_test your-user 'your-password' localhost 6.0`
+- Run the unit tests with `composer exec phpunit`
 
 ## Linting
 

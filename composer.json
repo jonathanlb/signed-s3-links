@@ -1,6 +1,10 @@
 {
     "require": {
-        "aws/aws-sdk-php": "^3.234",
-        "yoast/phpunit-polyfills" : "1.0.3"
+        "aws/aws-sdk-php": "3.234.*",
+				"ext-SimpleXML": "*",
+        "yoast/phpunit-polyfills" : "1.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9"
     }
 }
