@@ -128,4 +128,30 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 			Signed_S3_Link_Handler::parse_filename_from_key( $key )
 		);
 	}
+
+	/**
+	 * Ensure href_shortcode uses filename for title in its absence.
+	 */
+	public function test_href_shortcode_without_title() {
+		$atts = array( 's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md' );
+		$link = Signed_S3_Link_Handler::href_shortcode( $atts );
+		$this->assertTrue(
+			str_contains( $link, '>file.md</a>' )
+		);
+	}
+
+	/**
+	 * Ensure href_shortcode uses filename for title.
+	 */
+	public function test_href_shortcode_with_title() {
+		$title = 'Some markdown';
+		$atts  = array(
+			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md',
+			'title' => $title,
+		);
+		$link  = Signed_S3_Link_Handler::href_shortcode( $atts );
+		$this->assertTrue(
+			str_contains( $link, '>' . $title . '</a>' )
+		);
+	}
 }

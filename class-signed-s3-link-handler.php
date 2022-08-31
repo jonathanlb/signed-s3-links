@@ -97,7 +97,7 @@ class Signed_S3_Link_Handler {
 	public static function parse_bucket( $request ) {
 		$m = array();
 		preg_match( '/^(s3:\/\/)?([^\/]*)/', $request, $m );
-		if ( count( $m ) != 3 ) {
+		if ( count( $m ) !== 3 ) {
 			return '';
 		} else {
 			return $m[2];
@@ -112,15 +112,15 @@ class Signed_S3_Link_Handler {
 	public static function parse_filename( $request ) {
 		$m = array();
 		if ( str_starts_with( $request, 's://' ) ) {
-			  preg_match( '/^s3:\/\/.*\/([^\/]*)$/', $request, $m );
-			if ( count( $m ) != 2 ) {
+				preg_match( '/^s3:\/\/.*\/([^\/]*)$/', $request, $m );
+			if ( count( $m ) !== 2 ) {
 				return '';
 			} else {
 				return $m[1];
 			}
 		} else {
 			preg_match( '/\/([^\/]*)$/', $request, $m );
-			if ( count( $m ) != 2 ) {
+			if ( count( $m ) !== 2 ) {
 				return '';
 			} else {
 				return $m[1];
@@ -136,7 +136,7 @@ class Signed_S3_Link_Handler {
 	public static function parse_filename_from_key( $key ) {
 		$m = array();
 		preg_match( '/([^\/]*)$/', $key, $m );
-		if ( count( $m ) != 2 ) {
+		if ( count( $m ) !== 2 ) {
 			return '';
 		} else {
 			return $m[1];
@@ -151,7 +151,7 @@ class Signed_S3_Link_Handler {
 	public static function parse_key( $request ) {
 		$m = array();
 		preg_match( '/^(s3:\/\/)?[^\/]*\/(.*)/', $request, $m );
-		if ( count( $m ) != 3 ) {
+		if ( count( $m ) !== 3 ) {
 			return '';
 		} else {
 			return $m[2];
