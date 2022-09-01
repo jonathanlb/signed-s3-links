@@ -119,6 +119,18 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure parsed key does not end with a slash.
+	 */
+	public function test_parse_key_contains_no_slash() {
+		$req = 's3://example.com/foo/bar/';
+		$this->assertEquals(
+			'foo/bar',
+			Signed_S3_Link_Handler::parse_key( $req )
+		);
+	}
+
+
+	/**
 	 * Ensure we extract the filename from a key.
 	 */
 	public function test_parse_filename_from_key() {
@@ -153,5 +165,40 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		$this->assertTrue(
 			str_contains( $link, '>' . $title . '</a>' )
 		);
+	}
+
+	/** Ensure that we filter directory listings to the key. */
+	public function test_directory_filter() {
+		$key_prefix = 'some/dir';
+		$s3_listing = array(
+			array(
+				'Size' => 0,
+				'Key'  => 'some/dir/',
+			),
+			array(
+				'Size' => 128,
+				'Key'  => 'some/dir/file.txt',
+			),
+			array(
+				'Size' => 256,
+				'Key'  => 'some/dir/another_file.txt',
+			),
+			array(
+				'Size' => 0,
+				'Key'  => 'some/dir/subdir/',
+			),
+			array(
+				'Size' => 192,
+				'Key'  => 'some/dir/subdir/another_file.txt',
+			),
+		);
+		$listing    = Signed_S3_Link_Handler::filter_listing( $key_prefix, $s3_listing );
+		$this->assertEquals( 2, count( $listing ) );
+	}
+
+	/** Ensure that we can filter empty directory. */
+	public function test_empty_directory_filter() {
+		$listing = Signed_S3_Link_Handler::filter_listing( 'some/dir', array() );
+		$this->assertEquals( array(), $listing );
 	}
 }

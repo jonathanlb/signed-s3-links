@@ -54,13 +54,11 @@ class Signed_S3_Link_Handler {
 					'Prefix' => $key,
 				)
 			);
-			// TODO: filter by prefix.
 			Signed_S3_Links::log( 'listing ' . $listing );
 
-			$contents = $listing['Contents'] ? $listing['Contents'] : array();
-			$contents = array_filter(
-				$contents,
-				fn( $c) => $c['Size'] > 0
+			$contents = Signed_S3_Link_Handler::filter_listing(
+				$key,
+				$listing['Contents']
 			);
 
 			if ( count( $contents ) > 0 ) {
@@ -81,13 +79,35 @@ class Signed_S3_Link_Handler {
 				$result .= '</ul>';
 				return $result;
 			} else {
-				return 'no listing';
+				return 'no listing for ' . $dir;
 			}
 		} catch ( Exception $e ) {
-			Signed_S3_Links::log( 'cannot list ' . $e );
-			return 'Error: ' . $e->getMessage();
+			Signed_S3_Links::log( 'cannot list ' . $dir . ' : ' . $e );
+			return '<b>Error: </b><tt>' . $e->getMessage() . '</tt>';
 		}
 	}
+
+	public static function filter_listing( $key_prefix, $listing ) {
+		if ( ! $listing ) {
+			return array();
+		}
+
+		// Remove directory keys.
+		$contents = array_filter(
+			$listing,
+			fn( $e ) => $e['Size'] > 0
+		);
+
+		// Remove deeper objects than the key_prefix.
+		$prefix   = $key_prefix . '/';
+		$contents = array_filter(
+			$contents,
+			fn( $e ) => ! str_contains( str_replace( $prefix, '', $e['Key'] ), '/' )
+		);
+
+		return $contents;
+	}
+
 
 	/**
 	 * Extract the bucket from an href or directory listing request.
@@ -154,7 +174,7 @@ class Signed_S3_Link_Handler {
 		if ( count( $m ) !== 3 ) {
 			return '';
 		} else {
-			return $m[2];
+			return preg_replace( '/\/$/', '', $m[2] );
 		}
 	}
 
