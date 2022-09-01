@@ -32,8 +32,6 @@ You can display a directory listing using
 ```
 which will render an HTML list of signed links titled by the corresponding object file names.
 
-**TODO:** filter directory listing to files in exact directory listing.
-
 **TODO:** provide dictionary for link text
 
 ## Testing
