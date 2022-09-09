@@ -6,6 +6,7 @@ The signed-s3-links (SS3L) WordPress plugin allows post authors to publish signe
 - SS3L is targeted for PHP 7.4.30 and WordPress 6.0.
 - [Install AWS PHP SDK.](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html)
 - [Check your AWS credentials.](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)  SS3L will use the server-local credentials to authenticate with S3 services. 
+  - By default, SS3L will look for credentials profiles in the `$HOME/.aws/credentials` file.  You can specify an alternate directory under the settings menu with "Path to credentials file" using either an absolute path begining with /, or one relative to the SS3L plugin directory.
 
 ## Usage
 
@@ -28,11 +29,21 @@ In its absence, the plugin will use the object filename as the href text.
 
 You can display a directory listing using
 ```
-[ss3_dir my-s3-bucket-name/some/key/]
+[ss3_dir my-s3-bucket-name/some/key titles="index.json"]
 ```
 which will render an HTML list of signed links titled by the corresponding object file names.
+The optional `titles` parameter specifies a JSON file containing a dictionary mapping names (without the key prefix) to titles to print.
+In the absence of a title entry or title dictionary, objects will list as their name under the key.
 
-**TODO:** provide dictionary for link text
+Here is an example titles dictionary:
+```
+{
+	"2022_09_08_notes.pdf": "Emergency meeting minutes",
+	"2022_09_01_agenda.html": "Emergency meeting agenda"
+}
+```
+
+The titles dictionary object will not be printed, nor will objects nested in keys beneath the key specified.
 
 ## Testing
 

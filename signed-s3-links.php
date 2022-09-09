@@ -21,10 +21,7 @@ if ( ! function_exists( 'add_action' ) ) {
 
 require 'vendor/autoload.php';
 
-use Aws\S3\S3Client;
-use Aws\Exception\AwsException;
-
-define( 'SS3_DEBUG', true );
+// define( 'SS3_DEBUG', true );
 define( 'SIGNED_S3_LINKS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 register_activation_hook( __FILE__, array( 'Signed_S3_Links', 'plugin_activation' ) );

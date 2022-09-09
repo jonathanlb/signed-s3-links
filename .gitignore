@@ -27,3 +27,6 @@ vendor/
 *.log
 *.sql
 *.sqlite
+
+# ignore AWS credentials
+credentials

@@ -9,6 +9,8 @@
  * @since      0.1.0
  */
 
+use Aws\Credentials\CredentialProvider;
+
 /**
  * Signed_S3_Links
  */
@@ -54,8 +56,20 @@ class Signed_S3_Links {
 			'ss3_settings'
 		);
 		add_settings_field(
+			'aws_credentials_path',
+			__( 'Path to credentials file' ),
+			'text_input_callback',
+			'ss3_settings',
+			'aws_settings_section',
+			array(
+				'label_for'    => 'aws_credentials_path',
+				'option_group' => 'ss3_settings',
+				'option_id'    => 'aws_credentials_path',
+			)
+		);
+		add_settings_field(
 			'aws_credentials_profile',
-			__( 'Credentials Profile' ),
+			__( 'Credentials profile' ),
 			'text_input_callback',
 			'ss3_settings',
 			'aws_settings_section',
@@ -113,10 +127,27 @@ class Signed_S3_Links {
 	private static function create_aws_sdk() {
 		$options    = get_option( 'ss3_settings' );
 		$aws_config = array(
-			'profile' => $options['aws_credentials_profile'],
 			'region'  => $options['aws_region'],
 			'version' => $options['aws_version'],
 		);
+
+		$profile          = $options['aws_credentials_profile'];
+		$credentials_path = $options['aws_credentials_path'];
+
+		if ( $credentials_path ) {
+			if ( ! str_starts_with( $credentials_path, '/' ) ) {
+				$credentials_path = SIGNED_S3_LINKS__PLUGIN_DIR . $credentials_path;
+			}
+			$provider = CredentialProvider::ini( $profile, $credentials_path );
+			$provider = CredentialProvider::memoize( $provider );
+
+			self::log( array( 'new AWS SDK...', $aws_config ) );
+			self::log( array( 'reading credentials from', $options['aws_credentials_path'], $credentials_path, $profile ) );
+			$aws_config['credentials'] = $provider;
+		} else {
+			$aws_config['profile'] = $profile;
+			self::log( array( 'new AWS SDK', $aws_config ) );
+		}
 
 		$sdk = new Aws\Sdk( $aws_config );
 		return $sdk;
@@ -160,6 +191,9 @@ class Signed_S3_Links {
 
 		// Write default settings.
 		$options = get_option( 'ss3_settings' );
+		if ( ! isset( $options['aws_credentials_path'] ) ) {
+			$options['aws_credentials_path'] = '';
+		}
 		if ( ! isset( $options['aws_credentials_profile'] ) ) {
 			$options['aws_credentials_profile'] = 'default';
 		}

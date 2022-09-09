@@ -167,8 +167,47 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		);
 	}
 
+	/** Ensure that we filter directory listings to top level. */
+	public function test_directory_filter_at_top() {
+		$key_prefix = '';
+		$s3_listing = array(
+			array(
+				'Size' => 0,
+				'Key'  => 'some/dir/',
+			),
+			array(
+				'Size' => 64,
+				'Key'  => 'index.html',
+			),
+			array(
+				'Size' => 128,
+				'Key'  => 'some/dir/file.txt',
+			),
+			array(
+				'Size' => 256,
+				'Key'  => 'some/dir/another_file.txt',
+			),
+			array(
+				'Size' => 0,
+				'Key'  => 'some/dir/subdir/',
+			),
+			array(
+				'Size' => 192,
+				'Key'  => 'some/dir/subdir/another_file.txt',
+			),
+		);
+		$listing    = Signed_S3_Link_Handler::filter_listing( $key_prefix, $s3_listing );
+		$expected   = array(
+			array(
+				'Size' => 64,
+				'Key'  => 'index.html',
+			),
+		);
+		$this->assertEqualsCanonicalizing( $expected, $listing );
+	}
+
 	/** Ensure that we filter directory listings to the key. */
-	public function test_directory_filter() {
+	public function test_directory_filter_with_key() {
 		$key_prefix = 'some/dir';
 		$s3_listing = array(
 			array(
@@ -200,5 +239,27 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	public function test_empty_directory_filter() {
 		$listing = Signed_S3_Link_Handler::filter_listing( 'some/dir', array() );
 		$this->assertEquals( array(), $listing );
+	}
+
+	/** Ensure we can print a directory listing. */
+	public function test_build_directory_listing() {
+		$urls   = array(
+			0 => array(
+				'name' => 'program_notes.pdf',
+				'url'  => 'https://example.s2.amazonaws.com/abcdefg',
+			),
+			1 => array(
+				'name' => 'example.pdf',
+				'url'  => 'https://example.s2.amazonaws.com/bcdefgh',
+			),
+		);
+		$titles = array(
+			'program_notes.pdf' => 'The Program',
+		);
+
+		$listing = Signed_S3_Link_Handler::build_dir_listing( $urls, $titles );
+
+		$this->assertTrue( str_contains( $listing, 'example.pdf' ) );
+		$this->assertTrue( str_contains( $listing, 'The Program' ) );
 	}
 }
