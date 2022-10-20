@@ -3,9 +3,9 @@ The signed-s3-links (SS3L) WordPress plugin allows post authors to publish signe
 
 ## Installation
 
-- SS3L is targeted for PHP 7.4.30 and WordPress 6.0.
-- [Install AWS PHP SDK.](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html)
-- [Check your AWS credentials.](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)  SS3L will use the server-local credentials to authenticate with S3 services. 
+- SS3L should work with PHP 9.0 and WordPress 6.0.  The [unit-test framework](https://phpunit.de/) bundled here, however, [only runs with PHP 7.4.30.](https://github.com/jonathanlb/signed-s3-links/issues/4)
+- [Install AWS PHP SDK.](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html)  Running `composer update` using [composer.json](composer.json) should work if you have [composer installed.](https://getcomposer.org)
+- [Check your AWS credentials.](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)  SS3L will use server-local credentials to authenticate with S3 services. 
   - By default, SS3L will look for credentials profiles in the `$HOME/.aws/credentials` file.  You can specify an alternate directory under the settings menu with "Path to credentials file" using either an absolute path begining with /, or one relative to the SS3L plugin directory.
 
 ## Usage
