@@ -40,12 +40,12 @@ class Signed_S3_Link_Handler {
 	 * title is an optional key to be used as the href text.
 	 */
 	public static function href_shortcode( $atts ) {
-		$ref    = $atts[0];
+		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
 
 		$title = isset( $atts['title'] )
-		? $atts['title']
+		? wp_strip_all_tags( $atts['title'] )
 		: self::parse_filename( $ref );
 
 		$aws_opts = self::parse_aws_options( $atts );
@@ -121,7 +121,7 @@ class Signed_S3_Link_Handler {
 	 */
 	public static function list_dir_shortcode( $atts ) {
 		try {
-			$dir = $atts[0];
+			$dir = wp_strip_all_tags( $atts[0] );
 			Signed_S3_Links::log( 'list ' . $dir );
 			$aws_opts  = self::parse_aws_options( $atts );
 			$bucket    = self::parse_bucket( $dir );
@@ -176,7 +176,7 @@ class Signed_S3_Link_Handler {
 	 */
 	private static function parse_aws_options( $atts ) {
 		$region   = isset( $atts['region'] )
-		? $atts['region']
+		? wp_strip_all_tags( $atts['region'] )
 		: null;
 		$aws_opts = array( 'region' => $region );
 
