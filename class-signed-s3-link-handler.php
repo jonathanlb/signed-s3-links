@@ -269,7 +269,7 @@ class Signed_S3_Link_Handler {
 		);
 
 		$options      = get_option( 'ss3_settings' );
-		$link_timeout = $options['link_timeout'] || '+60 minutes';
+		$link_timeout = $options['link_timeout'];
 		$request      = $s3->createPresignedRequest( $cmd, $link_timeout );
 		$signed_url   = (string) $request->getUri();
 		return $signed_url;

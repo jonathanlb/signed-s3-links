@@ -1,6 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "3.234.*",
+        "aws/aws-sdk-php": "3.240.*",
 				"ext-SimpleXML": "*",
         "yoast/phpunit-polyfills" : "1.0.*"
     },
