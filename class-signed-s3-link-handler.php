@@ -35,20 +35,22 @@ class Signed_S3_Link_Handler {
 	/**
 	 * Print a signed link to an S3 file.
 	 *
-	 * @param $atts The shortcode attributes.  The first (unnamed) parameter
-	 * should be the S3 key to list objects under.  title is an optional key
-	 * to be used as the href text.
+	 * @param array $atts The shortcode attributes.  The first (unnamed)
+	 * parameter should be the S3 key to list objects under.
+	 * title is an optional key to be used as the href text.
 	 */
 	public static function href_shortcode( $atts ) {
 		$ref    = $atts[0];
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
 
-		$title = array_key_exists( 'title', $atts )
+		$title = isset( $atts['title'] )
 		? $atts['title']
 		: self::parse_filename( $ref );
 
-		$s3  = Signed_S3_Links::s3();
+		$aws_opts = self::parse_aws_options( $atts );
+
+		$s3  = Signed_S3_Links::s3( $aws_opts );
 		$url = self::sign_entry( $s3, $bucket, $key );
 		return '<a href="' . $url . '">' . $title . '</a>';
 	}
@@ -57,9 +59,10 @@ class Signed_S3_Link_Handler {
 	 * Read and parse an S3 object containing a JSON file representing a
 	 * dictionary mapping filenames to titles.
 	 *
-	 * @param $s3 an S3 client.
-	 * @param $bucket the bucket containing the dictionary key.
-	 * @param $key key in the bucket pointing to the title dictionary.
+	 * @param array  $s3 @see Aws\AwsClient.
+	 * @param string $bucket the bucket containing the dictionary key.
+	 * @param string $key The key under the bucket pointing to the title
+	 * dictionary.
 	 */
 	public static function fetch_titles( $s3, $bucket, $key ) {
 		Signed_S3_Links::log( array( 'fetching titles ', $bucket, $key ) );
@@ -79,9 +82,8 @@ class Signed_S3_Link_Handler {
 	 * and keys more than one level beneath $key_prefix.
 	 *
 	 * @param string $key_prefix the key to list objects under.
-	 * @param array $listing an array of object entries from
-	 *  S3Client::listEntries().
-	 * @param $titles_key
+	 * @param array  $listing an array of object entries from @see Aws\S3Client\ListEntries().
+	 * @param string $titles_key filename containing json filename to titles map.
 	 */
 	public static function filter_listing( $key_prefix, $listing, $titles_key = null ) {
 		Signed_S3_Links::log( 'filter ' . $key_prefix );
@@ -112,7 +114,7 @@ class Signed_S3_Link_Handler {
 	/**
 	 * Print a directory listing with signed links to S3 files.
 	 *
-	 * @param $atts The shortcode attributes.
+	 * @param array $atts The shortcode attributes.
 	 *  The first (unnamed) parameter should be the S3 key to list objects under.
 	 *  An optional parameter "titles" refers to an S3 link to a JSON file
 	 *  containing of a dictionary mapping filenames to titles to display.
@@ -121,9 +123,10 @@ class Signed_S3_Link_Handler {
 		try {
 			$dir = $atts[0];
 			Signed_S3_Links::log( 'list ' . $dir );
+			$aws_opts  = self::parse_aws_options( $atts );
 			$bucket    = self::parse_bucket( $dir );
 			$key       = self::parse_key( $dir );
-			$s3        = Signed_S3_Links::s3();
+			$s3        = Signed_S3_Links::s3( $aws_opts );
 			$title_key = isset( $atts['titles'] ) ?
 				$key . '/' . $atts['titles'] :
 				'';
@@ -135,7 +138,7 @@ class Signed_S3_Link_Handler {
 			);
 			Signed_S3_Links::log( array( 'listing ', $bucket, $key, $listing['Contents'] ?? null ) );
 
-			$contents = Signed_S3_Link_Handler::filter_listing(
+			$contents = self::filter_listing(
 				$key,
 				$listing['Contents'],
 				$title_key
@@ -151,11 +154,11 @@ class Signed_S3_Link_Handler {
 				);
 
 				$titles = $title_key ?
-					Signed_S3_Link_Handler::fetch_titles( $s3, $bucket, $title_key ) :
+					self::fetch_titles( $s3, $bucket, $title_key ) :
 					array();
 				Signed_S3_Links::log( array( 'titles ', $titles ) );
 
-				return Signed_S3_Link_Handler::build_dir_listing( $urls, $titles );
+				return self::build_dir_listing( $urls, $titles );
 			} else {
 				return 'no listing for ' . $dir;
 			}
@@ -163,6 +166,21 @@ class Signed_S3_Link_Handler {
 			Signed_S3_Links::log( 'cannot list ' . $dir . ' : ' . $e );
 			return '<b>Error: </b><tt>' . $e->getMessage() . '</tt>';
 		}
+	}
+
+	/**
+	 * Extract AWS parameters overriding the global defaults, such as region
+	 * or timeout.
+	 *
+	 * @param array $atts Attributes passed into the shortcodes.
+	 */
+	private static function parse_aws_options( $atts ) {
+		$region   = isset( $atts['region'] )
+		? $atts['region']
+		: null;
+		$aws_opts = array( 'region' => $region );
+
+		return $aws_opts;
 	}
 
 	/**
@@ -237,9 +255,9 @@ class Signed_S3_Link_Handler {
 	/**
 	 * Format a signed URI for the S3 object.
 	 *
-	 * @param $s3 the S3 client.
-	 * @param $bucket the bucket containing the object.
-	 * @param $key the key string for the object.
+	 * @param array  $s3 @see Aws\AwsClient.
+	 * @param string $bucket the bucket containing the object.
+	 * @param string $key the key string for the object.
 	 */
 	public static function sign_entry( $s3, $bucket, $key ) {
 		$cmd = $s3->getCommand(
@@ -249,9 +267,11 @@ class Signed_S3_Link_Handler {
 				'Key'    => $key,
 			)
 		);
-		// TODO Get duration from option
-		$request    = $s3->createPresignedRequest( $cmd, '+20 minutes' );
-		$signed_url = (string) $request->getUri();
+
+		$options      = get_option( 'ss3_settings' );
+		$link_timeout = $options['link_timeout'] || '+60 minutes';
+		$request      = $s3->createPresignedRequest( $cmd, $link_timeout );
+		$signed_url   = (string) $request->getUri();
 		return $signed_url;
 	}
 }

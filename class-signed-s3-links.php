@@ -80,6 +80,18 @@ class Signed_S3_Links {
 			)
 		);
 		add_settings_field(
+			'link_timeout',
+			__( 'Link Timeout' ),
+			'text_input_callback',
+			'ss3_settings',
+			'aws_settings_section',
+			array(
+				'label_for'    => 'link_timeout',
+				'option_group' => 'ss3_settings',
+				'option_id'    => 'link_timeout',
+			)
+		);
+		add_settings_field(
 			'aws_region',
 			__( 'Region' ),
 			'text_input_callback',
@@ -123,11 +135,13 @@ class Signed_S3_Links {
 
 	/**
 	 * Build an AWS SDK object from plugin options.
+	 *
+	 * @param array $aws_opts configuration to override global options.
 	 */
-	private static function create_aws_sdk() {
+	private static function create_aws_sdk( $aws_opts ) {
 		$options    = get_option( 'ss3_settings' );
 		$aws_config = array(
-			'region'  => $options['aws_region'],
+			'region'  => isset( $aws_opts['region'] ) ? $aws_opts['region'] : $options['aws_region'],
 			'version' => $options['aws_version'],
 		);
 
@@ -203,6 +217,9 @@ class Signed_S3_Links {
 		if ( ! isset( $options['aws_version'] ) ) {
 			$options['aws_version'] = 'latest';
 		}
+		if ( ! isset( $options['link_timeout'] ) ) {
+			$options['link_timeout'] = '+60 minutes';
+		}
 
 		add_option( 'ss3_settings', $options );
 	}
@@ -237,9 +254,11 @@ class Signed_S3_Links {
 
 	/**
 	 * Provide an S3 client.
+	 *
+	 * @param array $aws_opts configuration to override global options.
 	 */
-	public static function s3() {
-		$aws_sdk   = self::create_aws_sdk();
+	public static function s3( $aws_opts ) {
+		$aws_sdk   = self::create_aws_sdk( $aws_opts );
 		$s3_client = $aws_sdk->createS3();
 		return $s3_client;
 	}

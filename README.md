@@ -20,10 +20,11 @@ matches what you expect.
 
 You can insert a signed hyperlink to a object stored under S3 with the markup in your post text
 ```
-[ss3_ref my-s3-bucket-name/some/key/file.txt title="read this"]
+[ss3_ref my-s3-bucket-name/some/key/file.txt title="read this" region=us-west-2]
 ```
-The title parameter is optional.
-In its absence, the plugin will use the object filename as the href text.
+The title and region parameters are optional.
+In the absence of title, the plugin will use the object filename as the href text.
+Omitting region will create a link using the region stored in the plugin settings.
 
 ### Displaying a directory listing
 
@@ -44,6 +45,9 @@ Here is an example titles dictionary:
 ```
 
 The titles dictionary object will not be printed, nor will objects nested in keys beneath the key specified.
+
+The `ss3_dir` shortcode also takes the `region` optional parameter to override
+the global default.
 
 ## Testing
 
