@@ -181,6 +181,7 @@ class Signed_S3_Links {
 		add_action( 'admin_menu', array( 'Signed_S3_Links', 'admin_menu' ) );
 		add_action( 'wp_enqueue_scripts', array( 'Signed_S3_Links', 'wp_enqueue_scripts' ) );
 
+		add_shortcode( 'ss3_audio', array( 'Signed_S3_Link_Handler', 'audio_shortcode' ) );
 		add_shortcode( 'ss3_dir', array( 'Signed_S3_Link_Handler', 'list_dir_shortcode' ) );
 		add_shortcode( 'ss3_ref', array( 'Signed_S3_Link_Handler', 'href_shortcode' ) );
 	}

@@ -15,6 +15,45 @@
 class Signed_S3_Link_Handler {
 
 	/**
+	 * Print audio controls with source to the signed link.
+	 *
+	 * @param array $atts The shortcode attributes.  The first (unnamed)
+	 * parameter should be the S3 key to list objects under.
+	 * classname is an optional key to be used to style the audio controls.
+	 * title is an optional key to be used as the href text.
+	 */
+	public static function audio_shortcode( $atts ) {
+		$ref    = wp_strip_all_tags( $atts[0] );
+		$bucket = self::parse_bucket( $ref );
+		$key    = self::parse_key( $ref );
+
+		$class = isset( $atts['class'] )
+		? ' class="' . wp_strip_all_tags( $atts['class'] ) . '" '
+		: '';
+
+		$id = isset( $atts['id'] )
+		? ' id="' . wp_strip_all_tags( $atts['id'] ) . '" '
+		: '';
+
+		$title = isset( $atts['title'] )
+		? wp_strip_all_tags( $atts['title'] )
+		: '';
+
+		$aws_opts = self::parse_aws_options( $atts );
+		$s3       = Signed_S3_Links::s3( $aws_opts );
+		$url      = self::sign_entry( $s3, $bucket, $key );
+
+		$player = '<audio controls src="' . $url . '"' . $id . $class .
+			'><a href="' . $url .
+			'" target="_blank" rel="noopener noreferrer">Download audio</a></audio>';
+
+		if ( $title ) {
+			$player = '<figure><figcaption>' . $title . '</figcaption>' . $player . '</figure>';
+		}
+
+		return $player;
+	}
+	/**
 	 * Build a string of the HTML list for a directory listing.
 	 *
 	 * @param array $urls an array of (url, name) entries.

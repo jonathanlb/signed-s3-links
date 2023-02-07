@@ -143,6 +143,18 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure audio_shortcode uses filename for title in its absence.
+	 */
+	public function test_audio_shortcode_without_title() {
+		$atts = array( 's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3' );
+		$link = Signed_S3_Link_Handler::audio_shortcode( $atts );
+		$this->assertTrue(
+			str_contains( $link, 'file.mp3' )
+		);
+	}
+
+
+	/**
 	 * Ensure href_shortcode uses filename for title in its absence.
 	 */
 	public function test_href_shortcode_without_title() {
@@ -154,7 +166,22 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure href_shortcode uses filename for title.
+	 * Ensure audio_shortcode uses title.
+	 */
+	public function test_audio_shortcode_with_title() {
+		$title = 'Sing along';
+		$atts  = array(
+			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3',
+			'title' => $title,
+		);
+		$link  = Signed_S3_Link_Handler::audio_shortcode( $atts );
+		$this->assertTrue(
+			str_contains( $link, '<figure><figcaption>' . $title . '</figcaption>' )
+		);
+	}
+
+	/**
+	 * Ensure href_shortcode uses title.
 	 */
 	public function test_href_shortcode_with_title() {
 		$title = 'Some markdown';

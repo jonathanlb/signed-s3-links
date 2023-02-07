@@ -49,6 +49,14 @@ The titles dictionary object will not be printed, nor will objects nested in key
 The `ss3_dir` shortcode also takes the `region` optional parameter to override
 the global default.
 
+### Using the media player
+
+You can embed a signed link into a HTML5 media player
+```
+[ss3_audio my-s3-bucket/tunebook/song.mp3]
+```
+The shortcode accepts optional named parameters `title`, `class`, and `id` that enclose the player in a caption with the given title and allow you to style and reference the media player.
+
 ## Testing
 
 - Set up unit tests with `./bin/install-wp-tests.sh wordpress_test your-user 'your-password' localhost 6.0`
