@@ -56,7 +56,8 @@ class Signed_S3_Link_Handler {
 	public static function build_dir_listing( $urls, $titles, $ul_class, $li_class, $href_class ) {
 		$result = '<ul' . $ul_class . '>';
 		foreach ( $urls as $e ) {
-			$result .= '<li' . $li_class . '><a href="' . $e['url'] . '"' . $href_class . '>' .
+			$result .= '<li' . $li_class . '><a href="' . $e['url'] . '"' .
+				$href_class . ' target="_blank" rel="noopener noreferrer">' .
 				( $titles[ $e['name'] ] ?? $e['name'] ) .
 				'</a></li>';
 		}
@@ -171,7 +172,8 @@ class Signed_S3_Link_Handler {
 
 		$s3  = Signed_S3_Links::s3( $aws_opts );
 		$url = self::sign_entry( $s3, $bucket, $key );
-		return '<a href="' . $url . '"' . $id . $class . '>' . $title . '</a>';
+		return '<a href="' . $url . '"' . $id . $class .
+			' target="_blank" rel="noopener noreferrer">' . $title . '</a>';
 	}
 
 	/**
