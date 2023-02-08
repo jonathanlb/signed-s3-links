@@ -26,18 +26,9 @@ class Signed_S3_Link_Handler {
 		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
-
-		$class = isset( $atts['class'] )
-		? ' class="' . wp_strip_all_tags( $atts['class'] ) . '" '
-		: '';
-
-		$id = isset( $atts['id'] )
-		? ' id="' . wp_strip_all_tags( $atts['id'] ) . '" '
-		: '';
-
-		$title = isset( $atts['title'] )
-		? wp_strip_all_tags( $atts['title'] )
-		: '';
+		$class  = self::get_class_attr( $atts );
+		$id     = self::get_id_attr( $atts );
+		$title  = self::get_title_attr( $atts );
 
 		$aws_opts = self::parse_aws_options( $atts );
 		$s3       = Signed_S3_Links::s3( $aws_opts );
@@ -58,17 +49,104 @@ class Signed_S3_Link_Handler {
 	 *
 	 * @param array $urls an array of (url, name) entries.
 	 * @param array $titles a map from filename to printable titles.
+	 * @param string $ul_class the list class specifer string, e.g ' class = "..." '.
+	 * @param string $li_class the list-element class specifer string, e.g ' class = "..." '.
+	 * @param string $href_class the link class specifer string, e.g ' class = "..." '.
 	 */
-	public static function build_dir_listing( $urls, $titles ) {
-		$result = '<ul>';
+	public static function build_dir_listing( $urls, $titles, $ul_class, $li_class, $href_class ) {
+		$result = '<ul' . $ul_class . '>';
 		foreach ( $urls as $e ) {
-			$result .= '<li><a href="' . $e['url'] . '">' .
+			$result .= '<li' . $li_class . '><a href="' . $e['url'] . '"' . $href_class . '>' .
 				( $titles[ $e['name'] ] ?? $e['name'] ) .
 				'</a></li>';
 		}
 
 		$result .= '</ul>';
 		return $result;
+	}
+
+	/**
+	 * Return the optional class specifier for an HTML element, e.g.
+	 * ' class="foo bar baz" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_class_attr( $atts ) {
+		if ( isset( $atts['class'] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts['class'] ) . '" ';
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional class specifier for a href element, e.g.
+	 * ' class="mylink" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_href_class_attr( $atts ) {
+		if ( isset( $atts['href-class'] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts['href-class'] ) . '" ';
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional element id specifier for an HTML element, e.g.
+	 * ' id="obiwan" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_id_attr( $atts ) {
+		if ( isset( $atts['id'] ) ) {
+			return ' id="' . wp_strip_all_tags( $atts['id'] ) . '" ';
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional class specifier for a list element, e.g.
+	 * ' class="myelement" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_li_class_attr( $atts ) {
+		if ( isset( $atts['li-class'] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts['li-class'] ) . '" ';
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional from the attributes or '' if title is missing
+	 * from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_title_attr( $atts ) {
+		if ( isset( $atts['title'] ) ) {
+			return wp_strip_all_tags( $atts['title'] );
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional class specifier for a list, e.g.
+	 * ' class="mylist" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_ul_class_attr( $atts ) {
+		if ( isset( $atts['ul-class'] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts['ul-class'] ) . '" ';
+		} else {
+			return '';
+		}
 	}
 
 	/**
@@ -82,6 +160,8 @@ class Signed_S3_Link_Handler {
 		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
+		$class  = self::get_class_attr( $atts );
+		$id     = self::get_id_attr( $atts );
 
 		$title = isset( $atts['title'] )
 		? wp_strip_all_tags( $atts['title'] )
@@ -91,7 +171,7 @@ class Signed_S3_Link_Handler {
 
 		$s3  = Signed_S3_Links::s3( $aws_opts );
 		$url = self::sign_entry( $s3, $bucket, $key );
-		return '<a href="' . $url . '">' . $title . '</a>';
+		return '<a href="' . $url . '"' . $id . $class . '>' . $title . '</a>';
 	}
 
 	/**
@@ -162,14 +242,18 @@ class Signed_S3_Link_Handler {
 		try {
 			$dir = wp_strip_all_tags( $atts[0] );
 			Signed_S3_Links::log( 'list ' . $dir );
-			$aws_opts  = self::parse_aws_options( $atts );
-			$bucket    = self::parse_bucket( $dir );
-			$key       = self::parse_key( $dir );
-			$s3        = Signed_S3_Links::s3( $aws_opts );
-			$title_key = isset( $atts['titles'] ) ?
+			$aws_opts   = self::parse_aws_options( $atts );
+			$bucket     = self::parse_bucket( $dir );
+			$key        = self::parse_key( $dir );
+			$s3         = Signed_S3_Links::s3( $aws_opts );
+			$id         = self::get_id_attr( $atts );
+			$ul_class   = self::get_ul_class_attr( $atts );
+			$li_class   = self::get_li_class_attr( $atts );
+			$href_class = self::get_href_class_attr( $atts );
+			$title_key  = isset( $atts['titles'] ) ?
 				$key . '/' . $atts['titles'] :
 				'';
-			$listing   = $s3->listObjects(
+			$listing    = $s3->listObjects(
 				array(
 					'Bucket' => $bucket,
 					'Prefix' => $key,
@@ -197,7 +281,13 @@ class Signed_S3_Link_Handler {
 					array();
 				Signed_S3_Links::log( array( 'titles ', $titles ) );
 
-				return self::build_dir_listing( $urls, $titles );
+				return self::build_dir_listing(
+					$urls,
+					$titles,
+					$ul_class,
+					$li_class,
+					$href_class
+				);
 			} else {
 				return 'no listing for ' . $dir;
 			}

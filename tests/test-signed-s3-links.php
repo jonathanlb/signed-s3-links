@@ -169,14 +169,24 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	 * Ensure audio_shortcode uses title.
 	 */
 	public function test_audio_shortcode_with_title() {
-		$title = 'Sing along';
-		$atts  = array(
+		$title  = 'Sing along';
+		$id     = 'my-media-player';
+		$class  = 'media-player-class';
+		$atts   = array(
 			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3',
 			'title' => $title,
+			'id'    => $id,
+			'class' => $class,
 		);
-		$link  = Signed_S3_Link_Handler::audio_shortcode( $atts );
+		$player = Signed_S3_Link_Handler::audio_shortcode( $atts );
 		$this->assertTrue(
-			str_contains( $link, '<figure><figcaption>' . $title . '</figcaption>' )
+			str_contains( $player, '<figure><figcaption>' . $title . '</figcaption>' )
+		);
+		$this->assertTrue(
+			str_contains( $player, ' id="' . $id . '"' )
+		);
+		$this->assertTrue(
+			str_contains( $player, ' class="' . $class . '"' )
 		);
 	}
 
@@ -185,13 +195,23 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	 */
 	public function test_href_shortcode_with_title() {
 		$title = 'Some markdown';
+		$id    = 'my-signed-link';
+		$class = 'flashy-links';
 		$atts  = array(
 			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md',
 			'title' => $title,
+			'id'    => $id,
+			'class' => $class,
 		);
 		$link  = Signed_S3_Link_Handler::href_shortcode( $atts );
 		$this->assertTrue(
 			str_contains( $link, '>' . $title . '</a>' )
+		);
+		$this->assertTrue(
+			str_contains( $link, ' id="' . $id . '"' )
+		);
+		$this->assertTrue(
+			str_contains( $link, ' class="' . $class . '"' )
 		);
 	}
 
@@ -271,7 +291,7 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 
 	/** Ensure we can print a directory listing. */
 	public function test_build_directory_listing() {
-		$urls   = array(
+		$urls       = array(
 			0 => array(
 				'name' => 'program_notes.pdf',
 				'url'  => 'https://example.s2.amazonaws.com/abcdefg',
@@ -281,11 +301,20 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 				'url'  => 'https://example.s2.amazonaws.com/bcdefgh',
 			),
 		);
-		$titles = array(
+		$titles     = array(
 			'program_notes.pdf' => 'The Program',
 		);
+		$ul_class   = ' class="myList" ';
+		$li_class   = ' class="someElement" ';
+		$href_class = '';
 
-		$listing = Signed_S3_Link_Handler::build_dir_listing( $urls, $titles );
+		$listing = Signed_S3_Link_Handler::build_dir_listing(
+			$urls,
+			$titles,
+			$ul_class,
+			$li_class,
+			$href_class
+		);
 
 		$this->assertTrue( str_contains( $listing, 'example.pdf' ) );
 		$this->assertTrue( str_contains( $listing, 'The Program' ) );

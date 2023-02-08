@@ -26,6 +26,8 @@ The title and region parameters are optional.
 In the absence of title, the plugin will use the object filename as the href text.
 Omitting region will create a link using the region stored in the plugin settings.
 
+The shortcode accepts optional named parameters `class` and `id` that allow you to style and reference the hyperlink.
+
 ### Displaying a directory listing
 
 You can display a directory listing using
@@ -48,6 +50,7 @@ The titles dictionary object will not be printed, nor will objects nested in key
 
 The `ss3_dir` shortcode also takes the `region` optional parameter to override
 the global default.
+Finally, the shortcode accepts optional named parameters `href-class`, `li-class`, `ul-class`, and `id` that allow you to style the links, list elements, and unordered list and reference the list, respectively.
 
 ### Using the media player
 
