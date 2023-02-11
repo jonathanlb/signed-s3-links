@@ -26,7 +26,11 @@ The title and region parameters are optional.
 In the absence of title, the plugin will use the object filename as the href text.
 Omitting region will create a link using the region stored in the plugin settings.
 
-The shortcode accepts optional named parameters `class` and `id` that allow you to style and reference the hyperlink.
+#### Optional named parameters:
+
+- `class` provide styling classes for the link.
+- `div-class` provide style for an enclosing div.  If no value is provide, the list appears naked without an enclosing div.
+- `id` provide a reference to the hyperlink.
 
 ### Displaying a directory listing
 
@@ -35,8 +39,14 @@ You can display a directory listing using
 [ss3_dir my-s3-bucket-name/some/key titles="index.json"]
 ```
 which will render an HTML list of signed links titled by the corresponding object file names.
-The optional `titles` parameter specifies a JSON file containing a dictionary mapping names (without the key prefix) to titles to print.
-In the absence of a title entry or title dictionary, objects will list as their name under the key.
+
+#### Optional named parameters:
+
+- `div-class` provide style for an enclosing div.  If no value is provide, the list appears naked without an enclosing div.
+- `href-class`, `li-class`, `ul-class` style the links, list elements, and unordered list and reference the list, respectively.
+- `id` provide a reference to the unordered list.
+- `region` override the global default AWS region.
+- `titles` specifies a JSON file containing a dictionary mapping names (without the key prefix) to titles to print.  In the absence of a title entry or title dictionary, objects will list as their name under the key.
 
 Here is an example titles dictionary:
 ```
@@ -48,17 +58,18 @@ Here is an example titles dictionary:
 
 The titles dictionary object will not be printed, nor will objects nested in keys beneath the key specified.
 
-The `ss3_dir` shortcode also takes the `region` optional parameter to override
-the global default.
-Finally, the shortcode accepts optional named parameters `href-class`, `li-class`, `ul-class`, and `id` that allow you to style the links, list elements, and unordered list and reference the list, respectively.
-
 ### Using the media player
 
 You can embed a signed link into a HTML5 media player
 ```
 [ss3_audio my-s3-bucket/tunebook/song.mp3]
 ```
-The shortcode accepts optional named parameters `title`, `class`, and `id` that enclose the player in a caption with the given title and allow you to style and reference the media player.
+
+#### Optional named parameters:
+
+- `class` provide styling classes for the audio player.
+- `id` provide a reference to the audio player.
+- `title` enclose the player in a caption with the given title.
 
 ## Testing
 

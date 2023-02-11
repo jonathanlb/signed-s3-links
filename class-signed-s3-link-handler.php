@@ -19,7 +19,7 @@ class Signed_S3_Link_Handler {
 	 *
 	 * @param array $atts The shortcode attributes.  The first (unnamed)
 	 * parameter should be the S3 key to list objects under.
-	 * classname is an optional key to be used to style the audio controls.
+	 * class is an optional key to be used to style the audio controls.
 	 * title is an optional key to be used as the href text.
 	 */
 	public static function audio_shortcode( $atts ) {
@@ -30,20 +30,25 @@ class Signed_S3_Link_Handler {
 		$id     = self::get_id_attr( $atts );
 		$title  = self::get_title_attr( $atts );
 
-		$aws_opts = self::parse_aws_options( $atts );
-		$s3       = Signed_S3_Links::s3( $aws_opts );
-		$url      = self::sign_entry( $s3, $bucket, $key );
+		try {
+			$aws_opts = self::parse_aws_options( $atts );
+			$s3       = Signed_S3_Links::s3( $aws_opts );
+			$url      = self::sign_entry( $s3, $bucket, $key );
 
-		$player = '<audio controls src="' . $url . '"' . $id . $class .
+			$player = '<audio controls src="' . $url . '"' . $id . $class .
 			'><a href="' . $url .
 			'" target="_blank" rel="noopener noreferrer">Download audio</a></audio>';
 
-		if ( $title ) {
-			$player = '<figure><figcaption>' . $title . '</figcaption>' . $player . '</figure>';
-		}
+			if ( $title ) {
+				$player = '<figure><figcaption>' . $title . '</figcaption>' . $player . '</figure>';
+			}
 
-		return $player;
+			return $player;
+		} catch ( Exception $e ) {
+			return '<div><b>Cannot sign audio href. Error:</b> <tt>' . $e->getMessage() . '</tt></div>';
+		}
 	}
+
 	/**
 	 * Build a string of the HTML list for a directory listing.
 	 *
@@ -75,6 +80,21 @@ class Signed_S3_Link_Handler {
 	static function get_class_attr( $atts ) {
 		if ( isset( $atts['class'] ) ) {
 			return ' class="' . wp_strip_all_tags( $atts['class'] ) . '" ';
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Return the optional class specifier for a div enclosing the href to
+	 * be made by a shortcode, e.g.
+	 * ' class="foo bar baz" ' or '' if the attribute is missing from $atts.
+	 *
+	 * @param array $atts The shortcode attributes.
+	 */
+	static function get_div_class_attr( $atts ) {
+		if ( isset( $atts['div-class'] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts['div-class'] ) . '" ';
 		} else {
 			return '';
 		}
@@ -156,24 +176,37 @@ class Signed_S3_Link_Handler {
 	 * @param array $atts The shortcode attributes.  The first (unnamed)
 	 * parameter should be the S3 key to list objects under.
 	 * title is an optional key to be used as the href text.
+	 * class is an optional key to style the href.
+	 * div-class is an optional key to enclose the href with a div/ala-button with class styling options.
+	 * id is an optional key to reference the href.
 	 */
 	public static function href_shortcode( $atts ) {
-		$ref    = wp_strip_all_tags( $atts[0] );
-		$bucket = self::parse_bucket( $ref );
-		$key    = self::parse_key( $ref );
-		$class  = self::get_class_attr( $atts );
-		$id     = self::get_id_attr( $atts );
+		$ref       = wp_strip_all_tags( $atts[0] );
+		$bucket    = self::parse_bucket( $ref );
+		$key       = self::parse_key( $ref );
+		$class     = self::get_class_attr( $atts );
+		$div_class = self::get_div_class_attr( $atts );
+		$id        = self::get_id_attr( $atts );
 
 		$title = isset( $atts['title'] )
 		? wp_strip_all_tags( $atts['title'] )
 		: self::parse_filename( $ref );
 
-		$aws_opts = self::parse_aws_options( $atts );
-
-		$s3  = Signed_S3_Links::s3( $aws_opts );
-		$url = self::sign_entry( $s3, $bucket, $key );
-		return '<a href="' . $url . '"' . $id . $class .
+		try {
+			$aws_opts = self::parse_aws_options( $atts );
+			$s3       = Signed_S3_Links::s3( $aws_opts );
+			$url      = self::sign_entry( $s3, $bucket, $key );
+			$result   = '<a href="' . $url . '"' . $id . $class .
 			' target="_blank" rel="noopener noreferrer">' . $title . '</a>';
+
+			if ( $div_class ) {
+				$result = '<div ' . $div_class . '>' . $result . '</div>';
+			}
+
+			return $result;
+		} catch ( Exception $e ) {
+			return '<div><b>Error signing href:</b> <tt>' . $e->getMessage() . '</tt></div>';
+		}
 	}
 
 	/**
@@ -239,6 +272,11 @@ class Signed_S3_Link_Handler {
 	 *  The first (unnamed) parameter should be the S3 key to list objects under.
 	 *  An optional parameter "titles" refers to an S3 link to a JSON file
 	 *  containing of a dictionary mapping filenames to titles to display.
+	 *  Other optional parameters include "div_class", "li_class", "ul_class",
+	 *  and "href_class" used to style the output elements.  If no "div_class"
+	 *  parameter is specified then the output will not be enclosed in a div.
+	 *  The optional "id" parameter can be used to reference the resulting
+	 *  list.
 	 */
 	public static function list_dir_shortcode( $atts ) {
 		try {
@@ -249,6 +287,7 @@ class Signed_S3_Link_Handler {
 			$key        = self::parse_key( $dir );
 			$s3         = Signed_S3_Links::s3( $aws_opts );
 			$id         = self::get_id_attr( $atts );
+			$div_class  = self::get_div_class_attr( $atts );
 			$ul_class   = self::get_ul_class_attr( $atts );
 			$li_class   = self::get_li_class_attr( $atts );
 			$href_class = self::get_href_class_attr( $atts );
@@ -283,19 +322,25 @@ class Signed_S3_Link_Handler {
 					array();
 				Signed_S3_Links::log( array( 'titles ', $titles ) );
 
-				return self::build_dir_listing(
+				$result = self::build_dir_listing(
 					$urls,
 					$titles,
 					$ul_class,
 					$li_class,
 					$href_class
 				);
+
+				if ( $div_class ) {
+					$result = '<div ' . $div_class . '>' . $result . '</div>';
+				}
+
+				return $result;
 			} else {
 				return 'no listing for ' . $dir;
 			}
 		} catch ( Exception $e ) {
 			Signed_S3_Links::log( 'cannot list ' . $dir . ' : ' . $e );
-			return '<b>Error: </b><tt>' . $e->getMessage() . '</tt>';
+			return '<b>Cannot build listing. Error: </b><tt>' . $e->getMessage() . '</tt>';
 		}
 	}
 
