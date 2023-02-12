@@ -45,6 +45,7 @@ class Signed_S3_Link_Handler {
 
 			return $player;
 		} catch ( Exception $e ) {
+			error_log( 'audio_shortcode error: ' . $e->getMessage() );
 			return '<div><b>Cannot sign audio href. Error:</b> <tt>' . $e->getMessage() . '</tt></div>';
 		}
 	}
@@ -205,6 +206,7 @@ class Signed_S3_Link_Handler {
 
 			return $result;
 		} catch ( Exception $e ) {
+			error_log( 'href_shortcode error: ' . $e->getMessage() );
 			return '<div><b>Error signing href:</b> <tt>' . $e->getMessage() . '</tt></div>';
 		}
 	}
@@ -339,7 +341,7 @@ class Signed_S3_Link_Handler {
 				return 'no listing for ' . $dir;
 			}
 		} catch ( Exception $e ) {
-			Signed_S3_Links::log( 'cannot list ' . $dir . ' : ' . $e );
+			error_log( 'list_dir_shortcode "' . $dir . '" error: ' . $e->getMessage() );
 			return '<b>Cannot build listing. Error: </b><tt>' . $e->getMessage() . '</tt>';
 		}
 	}
