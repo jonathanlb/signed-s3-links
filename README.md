@@ -46,7 +46,7 @@ which will render an HTML list of signed links titled by the corresponding objec
 
 - `div_class` provides class for an enclosing div. If no class or style value is provided, the list appears naked without an enclosing div.
 - `div_style` provides style for the enclosing div. If no class or style value is provided, the list appears naked without an enclosing div.
-- `href_class`, `li_class`, `ul_class` style the links using a class, list elements, and unordered list and reference the list, respectively.
+- `a_class`, `li_class`, `ul_class` style the links using a class, list elements, and unordered list and reference the list, respectively.
 - `id` provide. a reference to the unordered list.
 - `region` overrides the global default AWS region.
 - `style` provides css style overrides to the hyperlink.
@@ -66,7 +66,7 @@ The titles dictionary object will not be printed, nor will objects nested in key
 
 You can embed a signed link into a HTML5 media player
 ```
-[ss3_audio my-s3-bucket/tunebook/song.mp3]
+[ss3_audio my-s3-bucket/tunebook/song.mp3 style="width: 100%;" class="wp-audio-shortcode" title="Some Song to Play"]
 ```
 
 #### Optional named parameters:
@@ -75,6 +75,23 @@ You can embed a signed link into a HTML5 media player
 - `id` provide a reference to the audio player.
 - `title` enclose the player in a caption with the given title.
 - `style` provides css style overrides to the audio player, e.g. `"width: 100%;"`.
+
+## Troubleshooting
+
+### Using a Visual Editor
+If you're using a visual editor, like [Divi](https://www.elegantthemes.com/gallery/divi/), use the "text" editing mode, as opposed to the "visual" mode option in the upper-right side of the panel.
+Divi will wrap certain tokens, like "class", in span elements, preventing WordPress from interpretting shortcode arguments.
+
+Also using Divi, the visual editor can be slow to apply CSS class styling to
+the shortcodes.
+Be patient.
+Test outside of the editor.
+Check the `post_content` column in the `wp_posts` table using MySQL.
+
+### AWS Credentials
+If you get an error reading the AWS credentials file from the home directory,
+copy your credentials file into the signed-s3-links plugin directory and 
+reference it with `./credentials` from the Signed-S3-Links settings menu.
 
 ## Testing
 

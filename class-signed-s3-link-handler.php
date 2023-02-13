@@ -239,7 +239,7 @@ class Signed_S3_Link_Handler {
 	 *  An optional parameter "titles" refers to an S3 link to a JSON file
 	 *  containing of a dictionary mapping filenames to titles to display.
 	 *  Other optional parameters include "div_class", "li_class", "ul_class",
-	 *  and "href_class" used to style the output elements.  If no "div_class"
+	 *  and "a_class" used to style the output elements.  If no "div_class"
 	 *  parameter is specified then the output will not be enclosed in a div.
 	 *  The optional "id" parameter can be used to reference the resulting
 	 *  list.
@@ -248,21 +248,21 @@ class Signed_S3_Link_Handler {
 		try {
 			$dir = wp_strip_all_tags( $atts[0] );
 			Signed_S3_Links::log( 'list ' . $dir );
-			$aws_opts   = self::parse_aws_options( $atts );
-			$bucket     = self::parse_bucket( $dir );
-			$key        = self::parse_key( $dir );
-			$s3         = Signed_S3_Links::s3( $aws_opts );
+			$aws_opts = self::parse_aws_options( $atts );
+			$bucket   = self::parse_bucket( $dir );
+			$key      = self::parse_key( $dir );
+			$s3       = Signed_S3_Links::s3( $aws_opts );
 
 			$id         = self::get_id_attr( $atts );
 			$div_class  = self::get_class_attr( $atts, 'div_class' );
 			$ul_class   = self::get_class_attr( $atts, 'ul_class' );
 			$li_class   = self::get_class_attr( $atts, 'li_class' );
-			$href_class = self::get_class_attr( $atts, 'href_class' );
+			$href_class = self::get_class_attr( $atts, 'a_class' );
 
-			$title_key  = isset( $atts['titles'] ) ?
+			$title_key = isset( $atts['titles'] ) ?
 				$key . '/' . $atts['titles'] :
 				'';
-			$listing    = $s3->listObjects(
+			$listing   = $s3->listObjects(
 				array(
 					'Bucket' => $bucket,
 					'Prefix' => $key,
