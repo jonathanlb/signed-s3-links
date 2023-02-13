@@ -28,9 +28,11 @@ Omitting region will create a link using the region stored in the plugin setting
 
 #### Optional named parameters:
 
-- `class` provide styling classes for the link.
-- `div-class` provide style for an enclosing div.  If no value is provide, the list appears naked without an enclosing div.
-- `id` provide a reference to the hyperlink.
+- `class` provides styling classes for the link.
+- `div_class` provides class style for an enclosing div.  If no value is provide, the hyperlink appears naked without an enclosing div.
+- `div_style` provides style for the enclosing div. If no class or style value is provided, the hyperlink appears naked without an enclosing div.
+- `id` provides a reference to the hyperlink.
+- `style` provides css style overrides to the hyperlink.
 
 ### Displaying a directory listing
 
@@ -42,10 +44,12 @@ which will render an HTML list of signed links titled by the corresponding objec
 
 #### Optional named parameters:
 
-- `div-class` provide style for an enclosing div.  If no value is provide, the list appears naked without an enclosing div.
-- `href-class`, `li-class`, `ul-class` style the links, list elements, and unordered list and reference the list, respectively.
-- `id` provide a reference to the unordered list.
-- `region` override the global default AWS region.
+- `div_class` provides class for an enclosing div. If no class or style value is provided, the list appears naked without an enclosing div.
+- `div_style` provides style for the enclosing div. If no class or style value is provided, the list appears naked without an enclosing div.
+- `href_class`, `li_class`, `ul_class` style the links using a class, list elements, and unordered list and reference the list, respectively.
+- `id` provide. a reference to the unordered list.
+- `region` overrides the global default AWS region.
+- `style` provides css style overrides to the hyperlink.
 - `titles` specifies a JSON file containing a dictionary mapping names (without the key prefix) to titles to print.  In the absence of a title entry or title dictionary, objects will list as their name under the key.
 
 Here is an example titles dictionary:
@@ -70,6 +74,7 @@ You can embed a signed link into a HTML5 media player
 - `class` provide styling classes for the audio player.
 - `id` provide a reference to the audio player.
 - `title` enclose the player in a caption with the given title.
+- `style` provides css style overrides to the audio player, e.g. `"width: 100%;"`.
 
 ## Testing
 

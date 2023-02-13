@@ -146,8 +146,9 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	 * Ensure audio_shortcode uses filename for title in its absence.
 	 */
 	public function test_audio_shortcode_without_title() {
-		$atts = array( 's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3' );
-		$link = Signed_S3_Link_Handler::audio_shortcode( $atts );
+		$link = do_shortcode(
+			'[ss3_audio s3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3]'
+		);
 		$this->assertTrue(
 			str_contains( $link, 'file.mp3' )
 		);
@@ -158,8 +159,9 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	 * Ensure href_shortcode uses filename for title in its absence.
 	 */
 	public function test_href_shortcode_without_title() {
-		$atts = array( 's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md' );
-		$link = Signed_S3_Link_Handler::href_shortcode( $atts );
+		$link = do_shortcode(
+			'[ss3_ref s3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md]'
+		);
 		$this->assertTrue(
 			str_contains( $link, '>file.md</a>' )
 		);
@@ -169,16 +171,14 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	 * Ensure audio_shortcode uses title.
 	 */
 	public function test_audio_shortcode_with_title() {
-		$title  = 'Sing along';
-		$id     = 'my-media-player';
-		$class  = 'media-player-class';
-		$atts   = array(
-			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3',
-			'title' => $title,
-			'id'    => $id,
-			'class' => $class,
+		$title = 'Sing along';
+		$id    = 'my-media-player';
+		$class = 'media-player-class';
+
+		$player = do_shortcode(
+			"[ss3_audio s3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3 title=\"$title\" id=$id class=$class]"
 		);
-		$player = Signed_S3_Link_Handler::audio_shortcode( $atts );
+
 		$this->assertTrue(
 			str_contains( $player, '<figure><figcaption>' . $title . '</figcaption>' )
 		);
@@ -197,13 +197,11 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		$title = 'Some markdown';
 		$id    = 'my-signed-link';
 		$class = 'flashy-links';
-		$atts  = array(
-			's3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md',
-			'title' => $title,
-			'id'    => $id,
-			'class' => $class,
+
+		$link = do_shortcode(
+			"[ss3_ref s3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.md title=\"$title\" id=$id class=$class]"
 		);
-		$link  = Signed_S3_Link_Handler::href_shortcode( $atts );
+
 		$this->assertTrue(
 			str_contains( $link, '>' . $title . '</a>' )
 		);

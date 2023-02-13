@@ -26,16 +26,18 @@ class Signed_S3_Link_Handler {
 		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
-		$class  = self::get_class_attr( $atts );
-		$id     = self::get_id_attr( $atts );
-		$title  = self::get_title_attr( $atts );
+
+		$class = self::get_class_attr( $atts );
+		$id    = self::get_id_attr( $atts );
+		$title = self::get_title_attr( $atts );
+		$style = self::get_style_attr( $atts );
 
 		try {
 			$aws_opts = self::parse_aws_options( $atts );
 			$s3       = Signed_S3_Links::s3( $aws_opts );
 			$url      = self::sign_entry( $s3, $bucket, $key );
 
-			$player = '<audio controls src="' . $url . '"' . $id . $class .
+			$player = '<audio controls ' . $id . $style . $class . ' src="' . $url . '"' .
 			'><a href="' . $url .
 			'" target="_blank" rel="noopener noreferrer">Download audio</a></audio>';
 
@@ -77,39 +79,11 @@ class Signed_S3_Link_Handler {
 	 * ' class="foo bar baz" ' or '' if the attribute is missing from $atts.
 	 *
 	 * @param array $atts The shortcode attributes.
+	 * @param string $class_key The key to lookup, defaults to "class".
 	 */
-	static function get_class_attr( $atts ) {
-		if ( isset( $atts['class'] ) ) {
-			return ' class="' . wp_strip_all_tags( $atts['class'] ) . '" ';
-		} else {
-			return '';
-		}
-	}
-
-	/**
-	 * Return the optional class specifier for a div enclosing the href to
-	 * be made by a shortcode, e.g.
-	 * ' class="foo bar baz" ' or '' if the attribute is missing from $atts.
-	 *
-	 * @param array $atts The shortcode attributes.
-	 */
-	static function get_div_class_attr( $atts ) {
-		if ( isset( $atts['div-class'] ) ) {
-			return ' class="' . wp_strip_all_tags( $atts['div-class'] ) . '" ';
-		} else {
-			return '';
-		}
-	}
-
-	/**
-	 * Return the optional class specifier for a href element, e.g.
-	 * ' class="mylink" ' or '' if the attribute is missing from $atts.
-	 *
-	 * @param array $atts The shortcode attributes.
-	 */
-	static function get_href_class_attr( $atts ) {
-		if ( isset( $atts['href-class'] ) ) {
-			return ' class="' . wp_strip_all_tags( $atts['href-class'] ) . '" ';
+	static function get_class_attr( $atts, $class_key = 'class' ) {
+		if ( isset( $atts[ $class_key ] ) ) {
+			return ' class="' . wp_strip_all_tags( $atts[ $class_key ] ) . '" ';
 		} else {
 			return '';
 		}
@@ -130,21 +104,22 @@ class Signed_S3_Link_Handler {
 	}
 
 	/**
-	 * Return the optional class specifier for a list element, e.g.
-	 * ' class="myelement" ' or '' if the attribute is missing from $atts.
+	 * Return the optional style from the attributes or '' if style is missing
+	 * from $atts.
 	 *
 	 * @param array $atts The shortcode attributes.
+	 * @param string $style_key The key to lookup, defaults to "style".
 	 */
-	static function get_li_class_attr( $atts ) {
-		if ( isset( $atts['li-class'] ) ) {
-			return ' class="' . wp_strip_all_tags( $atts['li-class'] ) . '" ';
+	static function get_style_attr( $atts, $style_key = 'style' ) {
+		if ( isset( $atts[ $style_key ] ) ) {
+			return ' style="' . wp_strip_all_tags( $atts[ $style_key ] . '" ' );
 		} else {
 			return '';
 		}
 	}
 
 	/**
-	 * Return the optional from the attributes or '' if title is missing
+	 * Return the optional title from the attributes or '' if title is missing
 	 * from $atts.
 	 *
 	 * @param array $atts The shortcode attributes.
@@ -152,20 +127,6 @@ class Signed_S3_Link_Handler {
 	static function get_title_attr( $atts ) {
 		if ( isset( $atts['title'] ) ) {
 			return wp_strip_all_tags( $atts['title'] );
-		} else {
-			return '';
-		}
-	}
-
-	/**
-	 * Return the optional class specifier for a list, e.g.
-	 * ' class="mylist" ' or '' if the attribute is missing from $atts.
-	 *
-	 * @param array $atts The shortcode attributes.
-	 */
-	static function get_ul_class_attr( $atts ) {
-		if ( isset( $atts['ul-class'] ) ) {
-			return ' class="' . wp_strip_all_tags( $atts['ul-class'] ) . '" ';
 		} else {
 			return '';
 		}
@@ -182,12 +143,15 @@ class Signed_S3_Link_Handler {
 	 * id is an optional key to reference the href.
 	 */
 	public static function href_shortcode( $atts ) {
-		$ref       = wp_strip_all_tags( $atts[0] );
-		$bucket    = self::parse_bucket( $ref );
-		$key       = self::parse_key( $ref );
+		$ref    = wp_strip_all_tags( $atts[0] );
+		$bucket = self::parse_bucket( $ref );
+		$key    = self::parse_key( $ref );
+
 		$class     = self::get_class_attr( $atts );
-		$div_class = self::get_div_class_attr( $atts );
+		$div_class = self::get_class_attr( $atts, 'div_class' );
+		$div_style = self::get_style_attr( $atts, 'div_style' );
 		$id        = self::get_id_attr( $atts );
+		$style     = self::get_style_attr( $atts );
 
 		$title = isset( $atts['title'] )
 		? wp_strip_all_tags( $atts['title'] )
@@ -197,11 +161,11 @@ class Signed_S3_Link_Handler {
 			$aws_opts = self::parse_aws_options( $atts );
 			$s3       = Signed_S3_Links::s3( $aws_opts );
 			$url      = self::sign_entry( $s3, $bucket, $key );
-			$result   = '<a href="' . $url . '"' . $id . $class .
+			$result   = '<a ' . $id . $style . $class . ' href="' . $url . '"' .
 			' target="_blank" rel="noopener noreferrer">' . $title . '</a>';
 
-			if ( $div_class ) {
-				$result = '<div ' . $div_class . '>' . $result . '</div>';
+			if ( $div_class || $div_style ) {
+				$result = '<div ' . $div_style . $div_class . '>' . $result . '</div>';
 			}
 
 			return $result;
@@ -288,11 +252,13 @@ class Signed_S3_Link_Handler {
 			$bucket     = self::parse_bucket( $dir );
 			$key        = self::parse_key( $dir );
 			$s3         = Signed_S3_Links::s3( $aws_opts );
+
 			$id         = self::get_id_attr( $atts );
-			$div_class  = self::get_div_class_attr( $atts );
-			$ul_class   = self::get_ul_class_attr( $atts );
-			$li_class   = self::get_li_class_attr( $atts );
-			$href_class = self::get_href_class_attr( $atts );
+			$div_class  = self::get_class_attr( $atts, 'div_class' );
+			$ul_class   = self::get_class_attr( $atts, 'ul_class' );
+			$li_class   = self::get_class_attr( $atts, 'li_class' );
+			$href_class = self::get_class_attr( $atts, 'href_class' );
+
 			$title_key  = isset( $atts['titles'] ) ?
 				$key . '/' . $atts['titles'] :
 				'';
