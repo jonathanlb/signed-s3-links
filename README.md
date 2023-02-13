@@ -79,10 +79,13 @@ You can embed a signed link into a HTML5 media player
 ## Troubleshooting
 
 ### Using a Visual Editor
-If you're using a visual editor, like [Divi](https://www.elegantthemes.com/gallery/divi/), use the "text" editing mode, as opposed to the "visual" mode option in the upper-right side of the panel.
-Divi will wrap certain tokens, like "class", in span elements, preventing WordPress from interpretting shortcode arguments.
+If you're using a visual editor, like [Divi](https://www.elegantthemes.com/gallery/divi/), either
 
-Also using Divi, the visual editor can be slow to apply CSS class styling to
+- use the "text" editing mode, as opposed to the "visual" mode option in the upper-right side of the panel,
+- embed the shortcode inside a Code module container.
+
+Divi will wrap certain tokens, like "class", in span elements, preventing WordPress from interpretting shortcode arguments.
+Also, the visual editor can be slow to apply CSS class styling to
 the shortcodes.
 Be patient.
 Test outside of the editor.
