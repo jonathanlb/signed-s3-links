@@ -42,6 +42,29 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure that S3 client invocation is memoized, at least with respect to the
+	 * most recent call.
+	 */
+	public function test_memoize_s3_client() {
+			$s3_client_null   = Signed_S3_Links::s3( null );
+			$s3_client_null_0 = Signed_S3_Links::s3( null );
+			$this->assertEquals( $s3_client_null, $s3_client_null_0 );
+			$this->assertTrue( $s3_client_null === $s3_client_null_0 );
+
+			$aws_opts       = array( 'region' => 'us-east-1' );
+			$s3_client_east = Signed_S3_Links::s3( $aws_opts );
+			$this->assertNotEquals( $s3_client_east, $s3_client_null_0 );
+
+			$s3_client_east_0 = Signed_S3_Links::s3( $aws_opts );
+			$this->assertEquals( $s3_client_east, $s3_client_east_0 );
+			$this->assertTrue( $s3_client_east === $s3_client_east_0 );
+
+			Signed_S3_Links::respond_updated_option( 'aws_credentials_path', null, './credentials' );
+			$s3_client_east_1 = Signed_S3_Links::s3( $aws_opts );
+			$this->assertTrue( $s3_client_east_1 !== $s3_client_east_0 );
+	}
+
+	/**
 	 * Ensure we extract the bucket from requests beginning with 's3://'.
 	 */
 	public function test_parse_bucket_with_s3_prefix() {

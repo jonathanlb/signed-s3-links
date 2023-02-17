@@ -185,7 +185,6 @@ class Signed_S3_Link_Handler {
 	 * dictionary.
 	 */
 	public static function fetch_titles( $s3, $bucket, $key ) {
-		Signed_S3_Links::log( array( 'fetching titles ', $bucket, $key ) );
 		$result = $s3->getObject(
 			array(
 				'Bucket' => $bucket,
@@ -193,7 +192,6 @@ class Signed_S3_Link_Handler {
 			)
 		);
 		$str    = $result['Body']->getContents();
-		Signed_S3_Links::log( array( 'fetched titles ', $bucket, $key, $str ) );
 		return json_decode( $str, true );
 	}
 
@@ -206,7 +204,6 @@ class Signed_S3_Link_Handler {
 	 * @param string $titles_key filename containing json filename to titles map.
 	 */
 	public static function filter_listing( $key_prefix, $listing, $titles_key = null ) {
-		Signed_S3_Links::log( 'filter ' . $key_prefix );
 		if ( ! $listing ) {
 			return array();
 		}
@@ -247,7 +244,7 @@ class Signed_S3_Link_Handler {
 	public static function list_dir_shortcode( $atts ) {
 		try {
 			$dir = wp_strip_all_tags( $atts[0] );
-			Signed_S3_Links::log( 'list ' . $dir );
+
 			$aws_opts = self::parse_aws_options( $atts );
 			$bucket   = self::parse_bucket( $dir );
 			$key      = self::parse_key( $dir );
@@ -268,7 +265,6 @@ class Signed_S3_Link_Handler {
 					'Prefix' => $key,
 				)
 			);
-			Signed_S3_Links::log( array( 'listing ', $bucket, $key, $listing['Contents'] ?? null ) );
 
 			$contents = self::filter_listing(
 				$key,
@@ -288,7 +284,6 @@ class Signed_S3_Link_Handler {
 				$titles = $title_key ?
 					self::fetch_titles( $s3, $bucket, $title_key ) :
 					array();
-				Signed_S3_Links::log( array( 'titles ', $titles ) );
 
 				$result = self::build_dir_listing(
 					$urls,

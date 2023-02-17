@@ -7,7 +7,7 @@
 Plugin Name: Signed-S3-links
 Plugin URI: https://github.com/jonathanlb/signed-s3-links
 Description: Present S3 documents accessible via signed links.
-Version: 1.1.3
+Version: 1.1.4
 Author: Jonathan Bredin
 Author URI: https://bredin.org
 License: GPLv3 or later

@@ -22,6 +22,9 @@ class Signed_S3_Links {
 	 */
 	public static $initialized = false;
 
+	static $s3_client = null;
+	static $s3_config = null;
+
 	/**
 	 * Respond to admin_init events.
 	 */
@@ -155,12 +158,9 @@ class Signed_S3_Links {
 			$provider = CredentialProvider::ini( $profile, $credentials_path );
 			$provider = CredentialProvider::memoize( $provider );
 
-			self::log( array( 'new AWS SDK...', $aws_config ) );
-			self::log( array( 'reading credentials from', $options['aws_credentials_path'], $credentials_path, $profile ) );
 			$aws_config['credentials'] = $provider;
 		} else {
 			$aws_config['profile'] = $profile;
-			self::log( array( 'new AWS SDK', $aws_config ) );
 		}
 
 		$sdk = new Aws\Sdk( $aws_config );
@@ -175,7 +175,6 @@ class Signed_S3_Links {
 			return;
 		}
 
-		self::log( 'init_hooks' );
 		self::$initialized = true;
 		add_action( 'admin_init', array( 'Signed_S3_Links', 'admin_init' ) );
 		add_action( 'admin_menu', array( 'Signed_S3_Links', 'admin_menu' ) );
@@ -184,26 +183,14 @@ class Signed_S3_Links {
 		add_shortcode( 'ss3_audio', array( 'Signed_S3_Link_Handler', 'audio_shortcode' ) );
 		add_shortcode( 'ss3_dir', array( 'Signed_S3_Link_Handler', 'list_dir_shortcode' ) );
 		add_shortcode( 'ss3_ref', array( 'Signed_S3_Link_Handler', 'href_shortcode' ) );
-	}
 
-	/**
-	 * Styled after Akismet::log.
-	 *
-	 * @param mixed $debug_msg  String or object to print out during debug.
-	 */
-	public static function log( $debug_msg ) {
-		// call during unit-test debug fwrite(STDERR, print_r( $debug_msg, true ) . "\n" ).
-		if ( apply_filters( 'ss3_debug_log', defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG && defined( 'SS3_DEBUG' ) && SS3_DEBUG ) ) {
-			error_log( print_r( compact( 'debug_msg' ), true ) );
-		}
+		add_action( 'updated_option', array( 'Signed_S3_Links', 'respond_updated_option' ) );
 	}
 
 	/**
 	 * Respond to plugin_activation events.
 	 */
 	public static function plugin_activation() {
-		self::log( 'plugin_activation' );
-
 		// Write default settings.
 		$options = get_option( 'ss3_settings' );
 		if ( ! isset( $options['aws_credentials_path'] ) ) {
@@ -229,7 +216,6 @@ class Signed_S3_Links {
 	 * Respond to plugin_deactivation events.
 	 */
 	public static function plugin_deactivation() {
-		self::log( 'plugin_deactivation' );
 		delete_option( 'ss3_settings' );
 	}
 
@@ -254,21 +240,35 @@ class Signed_S3_Links {
 	}
 
 	/**
+	 * Reset the S3 client if the admin changes the values.  Defer building
+	 * the client until necessary.
+	 */
+	public static function respond_updated_option( $option_name ) {
+		Signed_S3_Links::$s3_client = null;
+		Signed_S3_Links::$s3_config = null;
+	}
+
+	/**
 	 * Provide an S3 client.
 	 *
 	 * @param array $aws_opts configuration to override global options.
 	 */
 	public static function s3( $aws_opts ) {
-		$aws_sdk   = self::create_aws_sdk( $aws_opts );
-		$s3_client = $aws_sdk->createS3();
-		return $s3_client;
+		if ( $aws_opts == self::$s3_config && self::$s3_client != null ) {
+			return self::$s3_client;
+		}
+
+		self::$s3_config = $aws_opts;
+
+		$aws_sdk         = self::create_aws_sdk( $aws_opts );
+		self::$s3_client = $aws_sdk->createS3();
+		return self::$s3_client;
 	}
 
 	/**
 	 * Respond to wp_enqueue_scripts events.
 	 */
 	public static function wp_enqueue_scripts() {
-		self::log( 'enqueue_scripts' );
 		wp_register_style( 'signed-s3-links', plugins_url( 'style.css', __FILE__ ), array(), '0.1.0' );
 		wp_enqueue_style( 'signed-s3-links' );
 	}
