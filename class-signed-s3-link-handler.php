@@ -37,7 +37,7 @@ class Signed_S3_Link_Handler {
 			$s3       = Signed_S3_Links::s3( $aws_opts );
 			$url      = self::sign_entry( $s3, $bucket, $key );
 
-			$player = '<audio controls ' . $id . $style . $class . ' src="' . $url . '"' .
+			$player = '<audio controls preload="none" ' . $id . $style . $class . ' src="' . $url . '"' .
 			'><a href="' . $url .
 			'" target="_blank" rel="noopener noreferrer">Download audio</a></audio>';
 
