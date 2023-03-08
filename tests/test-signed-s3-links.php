@@ -340,4 +340,26 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		$this->assertTrue( str_contains( $listing, 'example.pdf' ) );
 		$this->assertTrue( str_contains( $listing, 'The Program' ) );
 	}
+
+	/**
+	 * Measure the wall-clock cost of signing a link.
+	 * 2023-03-08: 0.53ms/op on 2.1GHz Xeon D-1541
+	 */
+	public function test_measure_link_signing() {
+		$title    = 'Sing along';
+		$id       = 'my-media-player';
+		$class    = 'media-player-class';
+		$num_iter = 10000;
+		$t_start  = microtime( true );
+
+		for ( $i = $num_iter; $i > 0; $i-- ) {
+			do_shortcode(
+				"[ss3_audio s3://abc.s3.amazonaws.com/my_stuff/more_stuff/file.mp3 title=\"$title\" id=$id class=$class]"
+			);
+		}
+
+		$t_diff = microtime( true ) - $t_start;
+		fwrite( STDOUT, 'Link sign cost (s): ' . ( $t_diff / $num_iter ) );
+		$this->assertTrue( $t_diff > 0 );
+	}
 }
