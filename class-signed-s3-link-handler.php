@@ -23,6 +23,12 @@ class Signed_S3_Link_Handler {
 	 * title is an optional key to be used as the href text.
 	 */
 	public static function audio_shortcode( $atts ) {
+		$transient_name = 'ss3_audio_' . hash( 'sha512', __FUNCTION__ . json_encode( $atts ) );
+		$player         = get_transient( $transient_name );
+		if ( $player ) {
+			return $player;
+		}
+
 		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
@@ -45,6 +51,7 @@ class Signed_S3_Link_Handler {
 				$player = '<figure><figcaption>' . $title . '</figcaption>' . $player . '</figure>';
 			}
 
+			set_transient( $transient_name, $player, SS3_SHORTCODE_TRANSIENT_SEC );
 			return $player;
 		} catch ( Exception $e ) {
 			error_log( 'audio_shortcode error: ' . $e->getMessage() );
@@ -143,6 +150,12 @@ class Signed_S3_Link_Handler {
 	 * id is an optional key to reference the href.
 	 */
 	public static function href_shortcode( $atts ) {
+		$transient_name = 'ss3_href_' . hash( 'sha512', __FUNCTION__ . json_encode( $atts ) );
+		$result         = get_transient( $transient_name );
+		if ( $result ) {
+			return $result;
+		}
+
 		$ref    = wp_strip_all_tags( $atts[0] );
 		$bucket = self::parse_bucket( $ref );
 		$key    = self::parse_key( $ref );
@@ -168,6 +181,7 @@ class Signed_S3_Link_Handler {
 				$result = '<div ' . $div_style . $div_class . '>' . $result . '</div>';
 			}
 
+			set_transient( $transient_name, $result, SS3_SHORTCODE_TRANSIENT_SEC );
 			return $result;
 		} catch ( Exception $e ) {
 			error_log( 'href_shortcode error: ' . $e->getMessage() );
@@ -242,6 +256,12 @@ class Signed_S3_Link_Handler {
 	 *  list.
 	 */
 	public static function list_dir_shortcode( $atts ) {
+		$transient_name = 'ss3_list_dir_' . hash( 'sha512', __FUNCTION__ . json_encode( $atts ) );
+		$result         = get_transient( $transient_name );
+		if ( $result ) {
+			return $result;
+		}
+
 		try {
 			$dir = wp_strip_all_tags( $atts[0] );
 
@@ -297,6 +317,7 @@ class Signed_S3_Link_Handler {
 					$result = '<div ' . $div_class . '>' . $result . '</div>';
 				}
 
+				set_transient( $transient_name, $result, SS3_SHORTCODE_TRANSIENT_SEC );
 				return $result;
 			} else {
 				return 'no listing for ' . $dir;

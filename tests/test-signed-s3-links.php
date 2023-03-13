@@ -38,7 +38,7 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 		$this->assertEquals( 'latest', $options['aws_version'] );
 		$this->assertEquals( 'us-east-2', $options['aws_region'] );
 		$this->assertEquals( 'default', $options['aws_credentials_profile'] );
-		$this->assertEquals( '+60 minutes', $options['link_timeout'] );
+		$this->assertEquals( '+8 hours', $options['link_timeout'] );
 	}
 
 	/**
@@ -344,6 +344,7 @@ class SignedS3LinksTest extends WP_UnitTestCase {
 	/**
 	 * Measure the wall-clock cost of signing a link.
 	 * 2023-03-08: 0.53ms/op on 2.1GHz Xeon D-1541
+	 * 2023-03-08: 0.03ms/op with transient on 2.1GHz Xeon D-1541
 	 */
 	public function test_measure_link_signing() {
 		$title    = 'Sing along';

@@ -206,7 +206,7 @@ class Signed_S3_Links {
 			$options['aws_version'] = 'latest';
 		}
 		if ( ! isset( $options['link_timeout'] ) ) {
-			$options['link_timeout'] = '+60 minutes';
+			$options['link_timeout'] = '+8 hours';
 		}
 
 		add_option( 'ss3_settings', $options );
