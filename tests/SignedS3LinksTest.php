@@ -3,6 +3,8 @@
  * Tests for the SignedS3Links plugin.
  *
  * @package Signed-S3-Links
+ * @version 1.1.4
+ * @author Jonathan Bredin <jbredin@gmail.com>
  */
 
 /**

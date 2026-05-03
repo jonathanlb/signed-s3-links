@@ -33,4 +33,3 @@ require_once SIGNED_S3_LINKS__PLUGIN_DIR . 'class-signed-s3-links.php';
 require_once SIGNED_S3_LINKS__PLUGIN_DIR . 'class-signed-s3-link-handler.php';
 
 add_action( 'init', array( 'Signed_S3_Links', 'init' ) );
-

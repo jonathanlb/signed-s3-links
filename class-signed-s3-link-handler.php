@@ -3,9 +3,10 @@
  * Signed_S3_Link_Handler query S3 for objects and format results
  *
  * @package    Signed-S3-links
- * @author     Jonathan Bredin <bredin@acm.org>
+ * @author     Jonathan Bredin <jbredin@gmail.com>
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt GNU/GPLv3
  * @link       https://github.com/jonathanlb/signed-s3-links
+ * @version	   1.1.4
  * @since      0.1.0
  */
 
@@ -62,8 +63,8 @@ class Signed_S3_Link_Handler {
 	/**
 	 * Build a string of the HTML list for a directory listing.
 	 *
-	 * @param array $urls an array of (url, name) entries.
-	 * @param array $titles a map from filename to printable titles.
+	 * @param array  $urls an array of (url, name) entries.
+	 * @param array  $titles a map from filename to printable titles.
 	 * @param string $ul_class the list class specifer string, e.g ' class = "..." '.
 	 * @param string $li_class the list-element class specifer string, e.g ' class = "..." '.
 	 * @param string $href_class the link class specifer string, e.g ' class = "..." '.
@@ -85,7 +86,7 @@ class Signed_S3_Link_Handler {
 	 * Return the optional class specifier for an HTML element, e.g.
 	 * ' class="foo bar baz" ' or '' if the attribute is missing from $atts.
 	 *
-	 * @param array $atts The shortcode attributes.
+	 * @param array  $atts The shortcode attributes.
 	 * @param string $class_key The key to lookup, defaults to "class".
 	 */
 	static function get_class_attr( $atts, $class_key = 'class' ) {
@@ -114,7 +115,7 @@ class Signed_S3_Link_Handler {
 	 * Return the optional style from the attributes or '' if style is missing
 	 * from $atts.
 	 *
-	 * @param array $atts The shortcode attributes.
+	 * @param array  $atts The shortcode attributes.
 	 * @param string $style_key The key to lookup, defaults to "style".
 	 */
 	static function get_style_attr( $atts, $style_key = 'style' ) {
@@ -435,4 +436,3 @@ class Signed_S3_Link_Handler {
 		return $signed_url;
 	}
 }
-

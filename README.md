@@ -93,17 +93,21 @@ Check the `post_content` column in the `wp_posts` table using MySQL.
 
 ### AWS Credentials
 If you get an error reading the AWS credentials file from the home directory,
-copy your credentials file into the signed-s3-links plugin directory and 
+copy your credentials to a file inside the signed-s3-links plugin directory and
 reference it with `./credentials` from the Signed-S3-Links settings menu.
 
-## Testing
+Make sure that the credentials file is not readable by the public, e.g. the link `https://yourhost.me/wp-content/plugins/signed-s3-links/credentials` , is not viewable. Options to protect the files might be to move the file elsewhere on your host, add a restriction to an `.htaccess` file, or use your provider's access tools.
 
-- Set up unit tests with `./bin/install-wp-tests.sh wordpress_test your-user 'your-password' localhost 6.0`
-- Run the unit tests with `composer exec phpunit`
+## Testing
+  - For testing, we use the @wordpress/env npm package.
+    - From the plugin directory, run `npm i`
+    - I'm sure I've forgotten all the steps to set up [wp-env](https://www.npmjs.com/package/@wordpress/env), but make sure Docker is running...
+  - `npm run wp-env-start`
+  - `npm t` # ad nausea...
+  - `npm run wp-env-stop`
 
 ## Linting
-
 ```
-phpcs --standard=WordPress tests/test*php
-phpcbf --standard=WordPress *.php tests/test*php
+npm run lint
+npm run sniff
 ```

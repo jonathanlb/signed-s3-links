@@ -3,9 +3,10 @@
  * Signed_S3_Links install, init, admin
  *
  * @package    Signed-S3-links
- * @author     Jonathan Bredin <bredin@acm.org>
+ * @author     Jonathan Bredin <jbredin@gmail.com>
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt GNU/GPLv3
  * @link       https://github.com/jonathanlb/signed-s3-links
+ * @version	   1.1.4
  * @since      0.1.0
  */
 
@@ -244,8 +245,8 @@ class Signed_S3_Links {
 	 * the client until necessary.
 	 */
 	public static function respond_updated_option( $option_name ) {
-		Signed_S3_Links::$s3_client = null;
-		Signed_S3_Links::$s3_config = null;
+		self::$s3_client = null;
+		self::$s3_config = null;
 	}
 
 	/**
@@ -272,6 +273,5 @@ class Signed_S3_Links {
 		wp_register_style( 'signed-s3-links', plugins_url( 'style.css', __FILE__ ), array(), '0.1.0' );
 		wp_enqueue_style( 'signed-s3-links' );
 	}
-
 }
 ?>
