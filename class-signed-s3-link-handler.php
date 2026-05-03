@@ -6,7 +6,7 @@
  * @author     Jonathan Bredin <jbredin@gmail.com>
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt GNU/GPLv3
  * @link       https://github.com/jonathanlb/signed-s3-links
- * @version	   1.1.4
+ * @version    1.1.4
  * @since      0.1.0
  */
 

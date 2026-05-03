@@ -1,6 +1,10 @@
 <?php
 /**
+ * Signed-S3-links plugin bootstrap file.
+ *
+ * @author  Jonathan Bredin <jbredin@gmail.com>
  * @package Signed-S3-links
+ * @version 1.1.4
  */
 
 /*
@@ -21,7 +25,6 @@ if ( ! function_exists( 'add_action' ) ) {
 
 require 'vendor/autoload.php';
 
-// define( 'SS3_DEBUG', true );
 define( 'SIGNED_S3_LINKS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 // Define the duration in seconds to memoize a shortcode operation.
 define( 'SS3_SHORTCODE_TRANSIENT_SEC', 300 );

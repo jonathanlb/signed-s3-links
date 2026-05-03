@@ -6,7 +6,7 @@ The signed-s3-links (SS3L) WordPress plugin allows post authors to publish signe
 - SS3L should work with PHP 8.0 and WordPress 6.0.  The [unit-test framework](https://phpunit.de/) bundled here, however, [only runs with PHP 7.4.30.](https://github.com/jonathanlb/signed-s3-links/issues/4)
 - [Install AWS PHP SDK.](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html)  Running `composer update` using [composer.json](composer.json) should work if you have [composer installed.](https://getcomposer.org)
 - [Check your AWS credentials.](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)  SS3L will use server-local credentials to authenticate with S3 services. 
-  - By default, SS3L will look for credentials profiles in the `$HOME/.aws/credentials` file.  You can specify an alternate directory under the settings menu with "Path to credentials file" using either an absolute path begining with /, or one relative to the SS3L plugin directory.
+  - By default, SS3L will look for credentials profiles in the plugin installation directory for the `credentials` file and use the `default` profile.  You can specify an alternate directory under the settings menu with "Path to credentials file" using either an absolute path begining with /, or one relative to the SS3L plugin directory.
 
 ## Usage
 
@@ -93,8 +93,8 @@ Check the `post_content` column in the `wp_posts` table using MySQL.
 
 ### AWS Credentials
 If you get an error reading the AWS credentials file from the home directory,
-copy your credentials to a file inside the signed-s3-links plugin directory and
-reference it with `./credentials` from the Signed-S3-Links settings menu.
+make sure that your credentials file is readable by WordPress and 
+referenced from the Signed-S3-Links settings menu.
 
 Make sure that the credentials file is not readable by the public, e.g. the link `https://yourhost.me/wp-content/plugins/signed-s3-links/credentials` , is not viewable. Options to protect the files might be to move the file elsewhere on your host, add a restriction to an `.htaccess` file, or use your provider's access tools.
 
@@ -103,6 +103,7 @@ Make sure that the credentials file is not readable by the public, e.g. the link
     - From the plugin directory, run `npm i`
     - I'm sure I've forgotten all the steps to set up [wp-env](https://www.npmjs.com/package/@wordpress/env), but make sure Docker is running...
   - `npm run wp-env-start`
+  - Make sure that there is a valid `credentials` file with a `default` profile in the default location, the plugin directory (this one).  The repository will not provide one.
   - `npm t` # ad nausea...
   - `npm run wp-env-stop`
 

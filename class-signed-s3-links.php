@@ -6,7 +6,7 @@
  * @author     Jonathan Bredin <jbredin@gmail.com>
  * @license    https://www.gnu.org/licenses/gpl-3.0.txt GNU/GPLv3
  * @link       https://github.com/jonathanlb/signed-s3-links
- * @version	   1.1.4
+ * @version    1.1.4
  * @since      0.1.0
  */
 
@@ -23,8 +23,18 @@ class Signed_S3_Links {
 	 */
 	public static $initialized = false;
 
-	static $s3_client = null;
-	static $s3_config = null;
+	/**
+	 * S3 client instance.
+	 *
+	 * @var $s3_client memoized S3 client instance.
+	 */
+	private static $s3_client = null;
+	/**
+	 * S3 client configuration.
+	 *
+	 * @var $s3_config memoized S3 client configuration.
+	 */
+	private static $s3_config = null;
 
 	/**
 	 * Respond to admin_init events.
@@ -195,7 +205,7 @@ class Signed_S3_Links {
 		// Write default settings.
 		$options = get_option( 'ss3_settings' );
 		if ( ! isset( $options['aws_credentials_path'] ) ) {
-			$options['aws_credentials_path'] = '';
+			$options['aws_credentials_path'] = 'credentials';
 		}
 		if ( ! isset( $options['aws_credentials_profile'] ) ) {
 			$options['aws_credentials_profile'] = 'default';
@@ -243,8 +253,10 @@ class Signed_S3_Links {
 	/**
 	 * Reset the S3 client if the admin changes the values.  Defer building
 	 * the client until necessary.
+	 *
+	 * @param string $option_name Name of the updated option, ignored for now, placeholder to match WP hook signature.
 	 */
-	public static function respond_updated_option( $option_name ) {
+	public static function respond_updated_option( $option_name ) { // phpcs:ignore
 		self::$s3_client = null;
 		self::$s3_config = null;
 	}
@@ -255,7 +267,7 @@ class Signed_S3_Links {
 	 * @param array $aws_opts configuration to override global options.
 	 */
 	public static function s3( $aws_opts ) {
-		if ( $aws_opts == self::$s3_config && self::$s3_client != null ) {
+		if ( $aws_opts === self::$s3_config && null !== self::$s3_client ) {
 			return self::$s3_client;
 		}
 
