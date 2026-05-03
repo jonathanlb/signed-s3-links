@@ -1,13 +1,13 @@
 {
     "require": {
-        "aws/aws-sdk-php": "3.288.*",
-				"ext-SimpleXML": "*",
-        "yoast/phpunit-polyfills" : "1.0.*"
+        "aws/aws-sdk-php": "3.379.*",
+		"ext-SimpleXML": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
-        "wp-coding-standards/wpcs": "^2.3"
+        "phpunit/phpunit": "^9.6",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+        "wp-coding-standards/wpcs": "^3.2",
+        "yoast/phpunit-polyfills" : "^4.0"
     },
     "config": {
         "allow-plugins": {

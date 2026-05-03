@@ -1,0 +1,25 @@
+{
+  "name": "signed-s3-links",
+  "version": "1.1.4",
+  "description": "Signed S3 links from WordPress content to S3 assets.",
+  "scripts": {
+    "wp-env-start": "wp-env start tests-cli",
+    "wp-env-stop": "wp-env stop tests-cli",
+    "lint": "./vendor/bin/phpcbf --standard=WordPress *.php tests/SignedS3LinksTest.php",
+    "sniff": "./vendor/bin/phpcs --standard=WordPress *.php tests/SignedS3LinksTest.php",
+    "test": "wp-env run tests-cli --env-cwd=wp-content/plugins/signed-s3-links ./vendor/bin/phpunit tests/SignedS3LinksTest.php"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonathanlb/signed-s3-links.git"
+  },
+  "author": "Jonathan Bredin",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jonathanlb/signed-s3-links/issues"
+  },
+  "homepage": "https://github.com/jonathanlb/signed-s3-links#readme",
+  "devDependencies": {
+    "@wordpress/env": "^11.5.0"
+  }
+}
